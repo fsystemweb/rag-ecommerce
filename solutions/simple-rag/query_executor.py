@@ -2,6 +2,7 @@ import json
 import numpy as np
 from openai import OpenAI
 from config.openai_client import client
+from util.generate_response import generate_response
 
 def cosine_similarity(vec1, vec2):
     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
@@ -15,18 +16,6 @@ def semantic_search(query, chunks, embeddings, k=2):
     scores = [(i, cosine_similarity(query_vec, emb)) for i, emb in enumerate(embeddings)]
     top_indices = sorted(scores, key=lambda x: x[1], reverse=True)[:k]
     return [chunks[i] for i, _ in top_indices]
-
-def generate_response(prompt, query, model="meta-llama/Meta-Llama-3.1-405B-Instruct"):
-    full_prompt = f"{prompt}\nQuestion: {query}"
-    response = client.chat.completions.create(
-        model=model,
-        temperature=0,
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": full_prompt}
-        ]
-    )
-    return response.choices[0].message.content
 
 def load_data(data_path="model_data.json"):
     """Load and prepare the model data"""
