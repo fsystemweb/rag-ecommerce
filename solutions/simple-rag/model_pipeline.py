@@ -3,12 +3,7 @@ import os
 import json
 import numpy as np
 from openai import OpenAI
-
-# Initialize OpenAI client
-client = OpenAI(
-    base_url="https://api.studio.nebius.com/v1/",
-    api_key="eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDExMzI0MDAwNjg1MDgwNjQ5MDQ3MiIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTkwOTIwNzI1NiwidXVpZCI6ImJmNzg4N2FlLTE1NDEtNGVlZS1iOTNhLTM3YzYzNzk4Mzk4YiIsIm5hbWUiOiJyYWciLCJleHBpcmVzX2F0IjoiMjAzMC0wNy0wMlQwNzoyMDo1NiswMDAwIn0.MOOxD7gl2o-Ka6edv_zLOcBh8yYkoaEVfLHbxXDNmPM"
-)
+from config.openai_client import client
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)

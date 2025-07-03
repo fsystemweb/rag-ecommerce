@@ -1,13 +1,7 @@
 import json
 import numpy as np
 from openai import OpenAI
-import os
-
-# Initialize OpenAI client
-client = OpenAI(
-    base_url="https://api.studio.nebius.com/v1/",
-    api_key="eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDExMzI0MDAwNjg1MDgwNjQ5MDQ3MiIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTkwOTIwNzI1NiwidXVpZCI6ImJmNzg4N2FlLTE1NDEtNGVlZS1iOTNhLTM3YzYzNzk4Mzk4YiIsIm5hbWUiOiJyYWciLCJleHBpcmVzX2F0IjoiMjAzMC0wNy0wMlQwNzoyMDo1NiswMDAwIn0.MOOxD7gl2o-Ka6edv_zLOcBh8yYkoaEVfLHbxXDNmPM"
-)
+from config.openai_client import client
 
 def cosine_similarity(vec1, vec2):
     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
@@ -34,16 +28,6 @@ def generate_response(prompt, query, model="meta-llama/Meta-Llama-3.1-405B-Instr
     )
     return response.choices[0].message.content
 
-def evaluate_response(query, ai_response, ideal_answer):
-    eval_prompt = (
-        f"User Query: {query}\nAI Response:\n{ai_response}\n"
-        f"True Response: {ideal_answer}\n"
-        "You are an intelligent evaluation system tasked with assessing the AI assistant's responses. "
-        "Assign 1 for correct, 0.5 for partial, and 0 for incorrect."
-    )
-    return generate_response(eval_prompt, eval_prompt)
-
-
 def load_data(data_path="model_data.json"):
     """Load and prepare the model data"""
     with open(data_path) as f:
@@ -69,16 +53,9 @@ def process_query(query, chunks, embeddings):
     ai_answer = generate_response(system_prompt, f"{context_prompt}\n\nQuestion: {query}")
     print("AI Answer:\n", ai_answer)
 
+
 if __name__ == "__main__":
     chunks, embeddings = load_data()
-
-    
-    #with open("data/val.json") as f:
-    #    val_data = json.load(f)
-
-    #query = val_data[0]["question"]
-    #ideal_answer = val_data[0]["ideal_answer"]
-
 
     while True:
         query = input("\nEnter your question (or 'quit' to exit): ").strip()
@@ -97,8 +74,6 @@ if __name__ == "__main__":
 
 
 
-    #score = evaluate_response(query, ai_answer, ideal_answer)
-    #print("Evaluation Score:\n", score)
 
 
 
