@@ -52,6 +52,7 @@ def process_data(data):
         for q in section['questions']:
             # Generar respuesta de IA
             ai_response = process_batch_query(q['question'], chunks, embeddings)
+            print(f"LOG | query: '{q['question']}' | ai_response: '{ai_response}'")
             
             # Evaluar respuesta
             metrics = evaluate_response(ai_response, q['answer'])
