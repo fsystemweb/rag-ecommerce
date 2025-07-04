@@ -104,12 +104,16 @@
 - **Contenido**: 50 uds (Etiopía/México/Guatemala/Brasil)
 - **Precio**: 13.75€
 - **Uso**: Exclusivo máquinas 1808
+- **Formatos**: 
+  - "Capsula"
 
 ### [Cápsulas Italiano]  
 - **Contenido**: 50 uds 
 - **Mezcla**: Arábica Brasil + Robusta India
 - **Tueste**: Italiano intenso
 - **Precio**: 13.75€
+- **Formatos**: 
+  - "Capsula"
 - **Uso**: Exclusivo máquinas 1808
 
 ### [Cápsulas Descafeinado]
@@ -117,6 +121,8 @@
 - **Origen**: Colombia/Brasil/Vietnam  
 - **Proceso**: Descafeinado natural
 - **Precio**: 13.75€
+- **Formatos**: 
+  - "Capsula"
 - **Uso**: Exclusivo máquinas 1808
 
 ## **Forma de Pago**

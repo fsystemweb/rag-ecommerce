@@ -1,0 +1,128 @@
+{
+  "questions": [
+    {
+      "section": "Sobre Nosotros",
+      "questions": [
+        {
+          "question": "¿Cuál es el origen del nombre 'Cafés 1808'?",
+          "answer": "Celebra el año 1808, cuando Colombia comenzó a exportar café al mundo. La empresa nació en 1986 con este nombre para honrar esa fecha y el origen del café de calidad."
+        },
+        {
+          "question": "¿Cuál es la misión de Cafés 1808?",
+          "answer": "Ser referentes en el sector de tostadores, distribuir café en la hostelería de Madrid y llegar a los hogares de amantes del café de calidad, demostrando pasión por el producto."
+        },
+        {
+          "question": "¿Qué valores destacan en la empresa?",
+          "answer": "Naturalidad, trabajo artesanal con mimo, producción sostenible, y atención al detalle para cuidar a clientes, trabajadores y proveedores."
+        }
+      ]
+    },
+    {
+      "section": "Devoluciones y Reembolsos",
+      "questions": [
+        {
+          "question": "¿Cuánto tiempo tengo para devolver un producto?",
+          "answer": "14 días naturales desde la recepción del producto (fecha del albarán)."
+        },
+        {
+          "question": "¿Qué condiciones debe cumplir el producto para ser devuelto?",
+          "answer": "Debe estar en estado original, con embalaje, accesorios, etiquetas y sin uso."
+        },
+        {
+          "question": "¿Quién cubre los gastos de envío en una devolución?",
+          "answer": "El cliente, excepto si hay una tara o error en el envío."
+        }
+      ]
+    },
+    {
+      "section": "Envíos",
+      "questions": [
+        {
+          "question": "¿Cuál es el tiempo de entrega del Envío Estándar?",
+          "answer": "24-48 horas hábiles si el pedido se realiza antes de las 10:00h."
+        },
+        {
+          "question": "¿Cuándo puedo recoger un pedido en tienda?",
+          "answer": "Al día siguiente entre 8:00h y 16:00h, si se ordena antes de las 14:00h."
+        }
+      ]
+    },
+    {
+      "section": "Garantía",
+      "questions": [
+        {
+          "question": "¿Qué cubre la garantía de los productos?",
+          "answer": "Falta de conformidad (defectos) en un plazo de un año desde la entrega, siempre que el producto no cumpla con la descripción o calidad esperada."
+        }
+      ]
+    },
+    {
+      "section": "Información de Productos",
+      "questions": [
+        {
+          "question": "¿Qué café me recomiendas que sea fuerte?",
+          "answer": "'1808 Arábica 80/20' (mezcla con torrefacto para crema voluminosa) o '1808 Arábica Natural' (sabor potente)."
+        },
+        {
+          "question": "¿Qué café tiene la mejor calidad?",
+          "answer": "'1808 Colombia Natural' (100% arábica, altitud >1200m, etiquetado como 'café de especialidad')."
+        },
+        {
+          "question": "¿Cuál es el café más barato en formato 250g?",
+          "answer": "'1808 Arábica Natural' o '1808 Arábica 80/20' (5.95€)."
+        },
+        {
+          "question": "¿Cuál es el café más caro en formato 1kg?",
+          "answer": "'1808 Colombia Natural' o '1808 Descafeinado Natural' (23.75€)."
+        },
+        {
+          "question": "¿Qué cafés tienen formato de cápsulas?",
+          "answer": "'Cápsulas Máxima', 'Cápsulas Italiano', 'Cápsulas Descafeinado' (todas a 13.75€, 50 uds, exclusivas para máquinas 1808)."
+        },
+        {
+          "question": "¿El '1808 Colombia Natural' viene en grano?",
+          "answer": "Sí, tiene opción de grano y molido para varios métodos (express, filtro, italiana, etc.)."
+        },
+        {
+          "question": "¿Qué café descafeinado ofrecen?",
+          "answer": "'1808 Descafeinado Natural' (blend arábica/robusta) y 'Cápsulas Descafeinado'."
+        }
+      ]
+    },
+    {
+      "section": "Forma de Pago",
+      "questions": [
+        {
+          "question": "¿Qué métodos de pago aceptan?",
+          "answer": "Tarjeta débito/crédito, transferencia bancaria y PayPal."
+        },
+        {
+          "question": "¿Los precios incluyen IVA?",
+          "answer": "Sí, son precios finales en euros con impuestos incluidos."
+        }
+      ]
+    },
+    {
+      "section": "Contacto",
+      "questions": [
+        {
+          "question": "¿Cómo puedo contactar a Cafés 1808?",
+          "answer": "Dirección: Calle Fragua, 6, Móstoles, Madrid. Teléfono: 916 186 013. Email: cafes1808@cafes1808.com. Web: https://www.cafes1808.com/."
+        }
+      ]
+    },
+    {
+      "section": "Preguntas transversales",
+      "questions": [
+        {
+          "question": "¿Qué hace único a Cafés 1808?",
+          "answer": "Tueste artesanal en Móstoles, compromiso con calidad natural, sostenibilidad y origen histórico desde 1986."
+        },
+        {
+          "question": "¿Dónde se tuestan los cafés?",
+          "answer": "En Móstoles, Madrid (ejemplo: '1808 Colombia Natural' se tuesta allí)."
+        }
+      ]
+    }
+  ]
+}

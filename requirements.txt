@@ -1,0 +1,7 @@
+PyMuPDF==1.23.7
+numpy==1.26.4
+openai==1.93.0
+load_dotenv
+matplotlib # For data analysis
+networkx # For data analysis
+scikit-learn # For validation of the RAG resutls

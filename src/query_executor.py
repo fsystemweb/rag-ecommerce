@@ -28,19 +28,13 @@ def load_data(data_path="model_data.json"):
 def process_query(query, chunks, embeddings):
     top_chunks = semantic_search(query, chunks, embeddings)
 
-    system_prompt = (
-        "You are an AI assistant for sales in a ecommerce strictly answers based on the given e-commerce context. " 
-        "If the answer cannot be derived from the context, respond only with: "
-        "No tengo suficiente información para responder esa pregunta."
-    )
-
     context_prompt = "\n".join([
         f"Context {i + 1}:\n{chunk}\n====================================="
         for i, chunk in enumerate(top_chunks)
     ])
 
-    ai_answer = generate_response(system_prompt, f"{context_prompt}\n\nQuestion: {query}")
-    print("AI Answer:\n", ai_answer)
+    ai_answer = generate_response(f"{context_prompt}\n\nQuestion: {query}")
+    return ai_answer
 
 
 if __name__ == "__main__":
@@ -56,7 +50,8 @@ if __name__ == "__main__":
             print("Please enter a valid question.")
             continue
 
-        process_query(query, chunks, embeddings)
+        ai_answer = process_query(query, chunks, embeddings)
+        print("AI Answer:\n", ai_answer)
 
 
 
