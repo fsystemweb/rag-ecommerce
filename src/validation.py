@@ -6,6 +6,12 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from util.generate_response import generate_response
+from query_executor import load_data, process_batch_query
+from datetime import datetime
+import os
+from pathlib import Path
+
+metrics_path = Path("../metrics")
 
 # Configuración inicial
 validation_data = {}
@@ -17,7 +23,6 @@ def load_val_data():
 def evaluate_response(ai_response, ideal_answer, threshold=0.6):
     """Evalúa la respuesta usando métricas de similitud semántica"""
     # Add context prompt
-
     vectorizer = TfidfVectorizer().fit_transform([ai_response, ideal_answer])
     similarity = cosine_similarity(vectorizer[0], vectorizer[1])[0][0]
     y_true = [1]
@@ -37,6 +42,8 @@ def evaluate_response(ai_response, ideal_answer, threshold=0.6):
 def process_data(data):
     results = []
     product_metrics = []
+
+    chunks, embeddings = load_data()
     
     for section in data['questions']:
         section_name = section['section']
@@ -44,7 +51,7 @@ def process_data(data):
         
         for q in section['questions']:
             # Generar respuesta de IA
-            ai_response = generate_response(q['question'])
+            ai_response = process_batch_query(q['question'], chunks, embeddings)
             
             # Evaluar respuesta
             metrics = evaluate_response(ai_response, q['answer'])
@@ -111,7 +118,7 @@ def generate_plots(aggregates, product_metrics):
     ax.set_xticklabels(sections, rotation=45, ha='right')
     ax.legend()
     plt.tight_layout()
-    plt.savefig('efectividad_secciones.png')
+    plt.savefig(metrics_path / 'efectividad_secciones.png')
     
     # 2. Gráfico de productos
     if product_metrics:
@@ -141,7 +148,7 @@ def generate_plots(aggregates, product_metrics):
         ax.set_xticklabels(products, rotation=45, ha='right')
         ax.legend()
         plt.tight_layout()
-        plt.savefig('desempeno_productos.png')
+        plt.savefig(metrics_path / 'desempeno_productos.png')
     
     # 3. Gráfico de distribución de F1
     all_f1 = [result['metrics']['f1'] for result in results]
@@ -153,7 +160,25 @@ def generate_plots(aggregates, product_metrics):
     ax.set_ylabel('Frecuencia')
     ax.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
-    plt.savefig('distribucion_f1.png')
+    plt.savefig(metrics_path / 'distribucion_f1.png')
+
+
+def save_metrics(aggregates, log_file="log.txt"):
+    os.makedirs(os.path.dirname(metrics_path / log_file), exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = {
+        "timestamp": timestamp,
+        "metrics": aggregates
+    }
+
+    with open(metrics_path / log_file, "a") as f:
+        f.write(json.dumps(log_entry) + "\n")  
+
+    for section, metrics in aggregates.items():
+        print(f"\n{section}:")
+        for metric, value in metrics.items():
+            print(f"  {metric.capitalize()}: {value:.4f}")
 
 # Ejecución principal
 if __name__ == "__main__":
@@ -167,41 +192,8 @@ if __name__ == "__main__":
     
     # Generar reporte
     print("\nReporte de Métricas por Sección:")
-    for section, metrics in aggregates.items():
-        print(f"\n{section}:")
-        for metric, value in metrics.items():
-            print(f"  {metric.capitalize()}: {value:.4f}")
+    save_metrics(aggregates)
     
     # Generar gráficos
     generate_plots(aggregates, product_metrics)
     print("\nGráficos generados: efectividad_secciones.png, desempeno_productos.png, distribucion_f1.png")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

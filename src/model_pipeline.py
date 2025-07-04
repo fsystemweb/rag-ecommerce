@@ -27,7 +27,7 @@ def save_model_data(chunks, embeddings, output_file="model_data.json"):
         json.dump(data, f)
 
 if __name__ == "__main__":
-    data_path = "../../data/data.md"
+    data_path = "../data/data.md"
     text = extract_text_from_md(data_path)
     chunks = chunk_text(text)
     embeddings = create_embeddings(chunks)
