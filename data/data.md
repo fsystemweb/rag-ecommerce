@@ -2,7 +2,7 @@
 
 ## **Sobre Nosotros** 
 	- Nombre: Cafés 1808.
-	- Info: En 1808, se empieza a exportar café desde Colombia al resto del mundo. En 1986, nace Cafés 1808. Con un nombre que celebra esta fecha y el origen del mejor café y con el compromiso de tratar con el mayor respeto y cuidado un producto de tanta pureza.
+	- Info: En Cafés 1808, se empieza a exportar café desde Colombia al resto del mundo. En 1986, nace Cafés 1808. Con un nombre que celebra esta fecha y el origen del mejor café y con el compromiso de tratar con el mayor respeto y cuidado un producto de tanta pureza.
 	Desde entonces, trabajamos día a día, minuto a minuto, para conseguir el tueste perfecto para conservar y ensalzar los beneficios del mejor café natural. 
 		Disfruta del aroma y el sabor de un café sin añadidos, recién tostado y servido a diario. Nosotros nos encargamos del resto.
 	- Visión: Ofrecer un café superior tratado con el máximo cariño y respeto. Mantener las propiedades naturales del café gracias a un tueste artesanal para que el cliente final pueda disfrutar de todos sus beneficios.
