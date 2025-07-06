@@ -47,6 +47,9 @@ Scrape or prepare all necessary product information including:
         data/
     ```
 
+### Create `.env` File
+Create your **`.env` file** using `.env.example` as a template, and fill in your specific values.
+
 ## Execution
 After adding your data.md file.
 

@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from util.generate_response import generate_response
 from query_executor import load_data, process_batch_query
 from datetime import datetime
 import os

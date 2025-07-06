@@ -1,6 +1,5 @@
 from config.openai_client import client
 
-
 def generate_response(query, model="meta-llama/Meta-Llama-3.1-405B-Instruct"):
     system_prompt = (
         "You are an AI assistant for sales in a ecommerce strictly answers based on the given e-commerce context. " 

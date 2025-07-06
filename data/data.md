@@ -1,13 +1,16 @@
 # Cafés 1808
 
 ## **Sobre Nosotros** 
-	- Nombre: Cafés 1808.
-	- Info: En Cafés 1808, se empieza a exportar café desde Colombia al resto del mundo. En 1986, nace Cafés 1808. Con un nombre que celebra esta fecha y el origen del mejor café y con el compromiso de tratar con el mayor respeto y cuidado un producto de tanta pureza.
+	Nombre: Cafés 1808.
+	
+  Info: En Cafés 1808, se empieza a exportar café desde Colombia al resto del mundo. En 1986, nace Cafés 1808. Con un nombre que celebra esta fecha y el origen del mejor café y con el compromiso de tratar con el mayor respeto y cuidado un producto de tanta pureza.
 	Desde entonces, trabajamos día a día, minuto a minuto, para conseguir el tueste perfecto para conservar y ensalzar los beneficios del mejor café natural. 
 		Disfruta del aroma y el sabor de un café sin añadidos, recién tostado y servido a diario. Nosotros nos encargamos del resto.
-	- Visión: Ofrecer un café superior tratado con el máximo cariño y respeto. Mantener las propiedades naturales del café gracias a un tueste artesanal para que el cliente final pueda disfrutar de todos sus beneficios.
-	- Valores: En Cafés 1808 creemos en la naturalidad y en el trabajo hecho con mimo y respeto. Apostamos por una producción sostenible y consciente. Por eso, prestamos atención a cada detalle para conseguir un resultado que cuide a nuestros clientes, trabajadores, proveedores y a todas las personas que ponen su granito para crear y disfrutar de un café único.
-	- Misión: Demostrar nuestra pasión por el café, ser referentes en el sector de los tostadores y la primera opción para distribuir café en la hostelería de la Comunidad de Madrid, así como en las casas de todos los buenos amantes del café de calidad. 
+	Visión: Ofrecer un café superior tratado con el máximo cariño y respeto. Mantener las propiedades naturales del café gracias a un tueste artesanal para que el cliente final pueda disfrutar de todos sus beneficios.
+	
+  Valores: En Cafés 1808 creemos en la naturalidad y en el trabajo hecho con mimo y respeto. Apostamos por una producción sostenible y consciente. Por eso, prestamos atención a cada detalle para conseguir un resultado que cuide a nuestros clientes, trabajadores, proveedores y a todas las personas que ponen su granito para crear y disfrutar de un café único.
+	
+  Misión: En Cafés 1808 nuestra misión es demostrar nuestra pasión por el café, ser referentes en el sector de los tostadores y la primera opción para distribuir café en la hostelería de la Comunidad de Madrid, así como en las casas de todos los buenos amantes del café de calidad. 
 
 
 ## **Devoluciones y Reembolsos**
@@ -40,16 +43,16 @@
 
 ## **Información de Productos**
 
-### [1808 Colombia Natural]
+### 1808 Colombia Natural
 - **Tipo**: 100% Arábica
 - **Origen**: Colombia (>1200m altitud)
 - **Tueste**: Artesanal en Móstoles
-- **Destacado**: "Café de especialidad para cafeteros exigentes"
-- **Formatos**:
+- **Destacado**: "Café de especialidad para cafeteros exigentes. Excelencia"
+- **Tamaños**:
   - `1kg`: 23.75€
   - `500g`: 11.90€
   - `250g`: 6.45€
-- **Molido**: 
+- **Formatos**: 
   - [x] Express
   - [x] Filtro
   - [x] Italiana
@@ -57,57 +60,57 @@
   - [x] Grano
 - **Prep**: "Cafetera italiana: llenar sin prensar"
 
-### [1808 Descafeinado Natural]
+### 1808 Descafeinado Natural
 - **Tipo**: Blend Arábica/Robusta
 - **Proceso**: Descafeinado artesanal
 - **Destacado**: "Café de especialidad para cafeteros exigentes"
-- **Formatos**:
+- **Tamaños**:
   - `1kg`: 23.75€
   - `500g`: 11.90€
   - `250g`: 6.45€
-- **Molido**: 
+- **Formatos**: 
   - [x] Express  
   - [x] Filtro
   - [x] Italiana
   - [x] Prensa francesa
   - [x] Grano
 
-### [1808 Arábica Natural]
+### 1808 Arábica Natural
 - **Origen**: Brasil/Honduras/Colombia
 - **Destacado**: "Sabor potente con postgusto prolongado"
-- **Formatos**:
+- **Tamaños**:
   - `1kg`: 21.90€
   - `500g`: 11.00€  
   - `250g`: 5.95€
-- **Molido**: 
+- **Formatos**: 
   - [x] Express
   - [x] Filtro
   - [x] Italiana
   - [x] Prensa francesa
   - [x] Grano
 
-### [1808 Arábica 80/20]
+### 1808 Arábica 80/20
 - **Mezcla**: 80% Natural + 20% Torrefacto
 - **Destacado**: "Crema voluminosa"
-- **Formatos**:
+- **Tamaños**:
   - `1kg`: 21.90€
   - `500g`: 11.00€
   - `250g`: 5.95€
-- **Molido**:
+- **Formatos**:
   - [x] Express
   - [x] Filtro
   - [x] Italiana  
   - [x] Prensa francesa
   - [x] Grano
 
-### [Cápsulas Máxima]
+### Cápsulas Máxima
 - **Contenido**: 50 uds (Etiopía/México/Guatemala/Brasil)
 - **Precio**: 13.75€
 - **Uso**: Exclusivo máquinas 1808
 - **Formatos**: 
   - "Capsula"
 
-### [Cápsulas Italiano]  
+### Cápsulas Italiano
 - **Contenido**: 50 uds 
 - **Mezcla**: Arábica Brasil + Robusta India
 - **Tueste**: Italiano intenso
@@ -116,7 +119,7 @@
   - "Capsula"
 - **Uso**: Exclusivo máquinas 1808
 
-### [Cápsulas Descafeinado]
+### Cápsulas Descafeinado
 - **Contenido**: 50 uds 
 - **Origen**: Colombia/Brasil/Vietnam  
 - **Proceso**: Descafeinado natural
@@ -132,7 +135,7 @@
 
 	Los precios pueden cambiar en cualquier momento, pero los posibles cambios no afectarán a los pedidos o compras con respecto a los que el CLIENTE ya haya recibido una confirmación del pedido.
 
-	Puedes realizar el pago mediante tarjeta de débito o crédito, transferencia bancaria y a través de la plataforma PayPal.
+	Metodos de pagos se pueden realizar con tarjeta de débito o crédito, transferencia bancaria y a través de la plataforma PayPal.
 
 ## **Contacto**
  - Dirección: Calle Fragua, 6 - 28933 Móstoles – Madrid

@@ -1,0 +1,35 @@
+{"timestamp": "2025-07-04 09:15:52", "metrics": {"Sobre Nosotros": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "Devoluciones y Reembolsos": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "Env\u00edos": {"precision": 0.5, "recall": 0.5, "f1": 0.5}, "Garant\u00eda": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "Informaci\u00f3n de Productos": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "Forma de Pago": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "Contacto": {"precision": 1.0, "recall": 1.0, "f1": 1.0}, "Preguntas transversales": {"precision": 0.0, "recall": 0.0, "f1": 0.0}}}
+LOG | query: '¿Cuál es el origen del nombre 'Cafés 1808'?' | ai_response: 'El origen del nombre 'Cafés 1808' se debe a que en ese año se empezó a exportar café desde Colombia al resto del mundo. El nombre celebra esta fecha y el origen del mejor café.'
+LOG | query: '¿Cuál es la misión de Cafés 1808?' | ai_response: 'No tengo suficiente información para responder esa pregunta.'
+LOG | query: '¿Qué valores destacan en la empresa?' | ai_response: 'La empresa Cafés 1808 destaca valores como la naturalidad y el trabajo hecho con mimo y respeto. Además, apuestan por una producción sostenible y consciente, lo que implica prestar atención a cada detalle para conseguir un resultado que cuide a clientes, trabajadores, proveedores y a todas las personas involucradas en la creación y disfrute de un café único.'
+LOG | query: '¿Cuánto tiempo tengo para devolver un producto?' | ai_response: 'Dispone de 14 días naturales para cualquier cambio o devolución desde que recibe el producto en su domicilio/recoge el artículo en la opción de Recogida en Tienda.'
+LOG | query: '¿Qué condiciones debe cumplir el producto para ser devuelto?' | ai_response: 'El producto debe estar en su estado y embalaje original, con todos sus accesorios y etiquetas. No se aceptarán cambios ni devoluciones de aquellos productos que no cumplan estas condiciones o hayan sido usados.'
+LOG | query: '¿Quién cubre los gastos de envío en una devolución?' | ai_response: 'Según el contexto proporcionado, los gastos de envío en una devolución corren a cargo del CLIENTE, salvo en el caso de devolución por taras.'
+LOG | query: '¿Cuál es el tiempo de entrega del Envío Estándar?' | ai_response: 'El tiempo de entrega del Envío Estándar es de 24/48 horas hábiles, siempre y cuando el pedido se realice antes de las 10:00 horas. Si el pedido se realiza después de esta hora, se considerará que el pedido se realizó al día siguiente hábil.'
+LOG | query: '¿Cuándo puedo recoger un pedido en tienda?' | ai_response: 'La fecha de recogida del pedido en tienda será la que conste en el albarán de entrega.'
+LOG | query: '¿Qué cubre la garantía de los productos?' | ai_response: 'La garantía cubre la falta de conformidad de los productos que se manifiestan en un plazo de un año, según los términos legalmente establecidos para cada tipo de producto.'
+LOG | query: '¿Qué café me recomiendas que sea fuerte?' | ai_response: 'Te recomiendo el "1808 Arábica Natural" ya que se describe como un café con "sabor potente con postgusto prolongado". Esto sugiere que es un café fuerte que podría satisfacer tus preferencias.'
+LOG | query: '¿Qué café tiene la mejor calidad?' | ai_response: 'Según la información proporcionada, el café "1808 Colombia Natural" se describe como "Café de especialidad para cafeteros exigentes. Excelencia", lo que sugiere que tiene una alta calidad. Sin embargo, también se menciona que el café "1808 Descafeinado Natural" es "Café de especialidad para cafeteros exigentes", pero sin la mención de "Excelencia". Por lo tanto, se puede inferir que el café "1808 Colombia Natural" tiene la mejor calidad según la descripción proporcionada.'
+LOG | query: '¿Cuál es el café más barato en formato 250g?' | ai_response: 'Según la información proporcionada, el café más barato en formato 250g es el "1808 Arábica Natural" y el "1808 Arábica 80/20" con un precio de 5.95€. También se encuentra el mismo precio para el "1808 Arábica Natural" en el contexto 2, sin embargo, el precio es de 6.45€ para el "1808 Colombia Natural" y el "1808 Descafeinado Natural".'
+LOG | query: '¿Cuál es el café más caro en formato 1kg?' | ai_response: 'Según la información proporcionada, los cafés "1808 Colombia Natural" y "1808 Descafeinado Natural" tienen un precio de 23,75€ en formato 1kg, lo que los convierte en los cafés más caros en este tamaño.'
+LOG | query: '¿Qué cafés tienen formato de cápsulas?' | ai_response: 'Según el contexto proporcionado, los cafés que tienen formato de cápsulas son:
+
+- Cápsulas Italiano (mezcla de Arábica Brasil + Robusta India)
+- Cápsulas Descafeinado (origen Colombia/Brasil/Vietnam)
+- Cápsulas Máxima (contenido de 50 uds, origen Etiopía/México/Guatemala/Brasil)'
+LOG | query: '¿El '1808 Colombia Natural' viene en grano?' | ai_response: 'Sí, el '1808 Colombia Natural' viene en grano.'
+LOG | query: '¿Qué café descafeinado ofrecen?' | ai_response: 'Según el contexto proporcionado, hay dos opciones de café descafeinado:
+
+1. En el Contexto 1, se ofrece "Cápsulas Descafeinado" con contenido de 50 unidades, origen en Colombia/Brasil/Vietnam, proceso de descafeinado natural, precio de 13.75€ y formato en cápsula para uso exclusivo en máquinas 1808.
+
+2. En el Contexto 2, se ofrece "1808 Descafeinado Natural" con tipo Blend Arábica/Robusta, proceso de descafeinado artesanal, y disponible en diferentes tamaños (1kg, 500g, 250g) y formatos (Express, Filtro, Italiana, Prensa francesa, Grano).'
+LOG | query: '¿Qué métodos de pago aceptan?' | ai_response: 'No tengo suficiente información para responder esa pregunta.'
+LOG | query: '¿Los precios incluyen IVA?' | ai_response: 'Sí, los precios exhibidos en el sitio web son finales e incluyen los impuestos que fiscalmente sean de su aplicación, incluyendo el IVA.'
+LOG | query: '¿Cómo puedo contactar a Cafés 1808?' | ai_response: 'Puedes contactar a Cafés 1808 a través de los siguientes medios:
+
+- Dirección: Calle Fragua, 6 - 28933 Móstoles – Madrid
+- Teléfono: 916 186 013
+- Email: cafes1808@cafes1808.com
+- Web: https://www.cafes1808.com/'
+LOG | query: '¿Qué hace único a Cafés 1808?' | ai_response: 'Según la información proporcionada, lo que hace único a Cafés 1808 es su compromiso con la naturalidad y el trabajo hecho con mimo y respeto, así como su enfoque en la producción sostenible y consciente. Además, su proceso de tueste artesanal permite mantener las propiedades naturales del café, lo que les permite ofrecer un café superior con todos sus beneficios.'
+LOG | query: '¿Dónde se tuestan los cafés?' | ai_response: 'En Móstoles.'

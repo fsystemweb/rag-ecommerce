@@ -4,6 +4,9 @@ import json
 import numpy as np
 from openai import OpenAI
 from config.openai_client import client
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
@@ -30,6 +33,6 @@ if __name__ == "__main__":
     data_path = "../data/data.md"
     text = extract_text_from_md(data_path)
     chunks = chunk_text(text)
-    embeddings = create_embeddings(chunks)
+    embeddings = create_embeddings(chunks, os.getenv("EMBEDDINGS_MODEL"))
     save_model_data(chunks, embeddings)
     print(f"Saved {len(chunks)} chunks and embeddings to model_data.json")

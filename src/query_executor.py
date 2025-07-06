@@ -4,6 +4,10 @@ import numpy as np
 from config.openai_client import client
 from util.generate_response import generate_response
 from sklearn.metrics.pairwise import cosine_similarity
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 #def cosine_similarity(vec1, vec2):
 #    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
@@ -19,7 +23,7 @@ def create_query_embedding(query, model="BAAI/bge-en-icl"):
 #    return [chunks[i] for i, _ in top_indices]
 
 def semantic_search(query, chunks, embeddings, k=2):
-    query_vec = np.asarray(create_query_embedding(query))
+    query_vec = np.asarray(create_query_embedding(query, os.getenv("EMBEDDINGS_MODEL")))
     if query_vec.ndim == 1:
         query_vec = query_vec.reshape(1, -1) 
         
@@ -44,7 +48,7 @@ def build_context_prompt(top_chunks, query):
 
 def process_query(query, chunks, embeddings):
     top_chunks = semantic_search(query, chunks, embeddings)
-    return generate_response(build_context_prompt(top_chunks, query))
+    return generate_response(build_context_prompt(top_chunks, query), os.getenv("MODEL_RAG_1"))
 
 def interactive_mode(chunks, embeddings):
     while True:
