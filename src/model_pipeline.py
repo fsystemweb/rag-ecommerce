@@ -1,8 +1,6 @@
 import fitz
 import os
 import json
-import numpy as np
-from openai import OpenAI
 from config.openai_client import client
 from dotenv import load_dotenv
 

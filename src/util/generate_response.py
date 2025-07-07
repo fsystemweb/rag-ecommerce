@@ -1,4 +1,5 @@
 from config.openai_client import client
+import numpy as np
 
 def generate_response(query, model="meta-llama/Meta-Llama-3.1-405B-Instruct"):
     system_prompt = (
@@ -17,3 +18,8 @@ def generate_response(query, model="meta-llama/Meta-Llama-3.1-405B-Instruct"):
         ]
     )
     return response.choices[0].message.content
+
+def cosine_similarity(vec1, vec2):
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
+    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
