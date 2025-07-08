@@ -10,10 +10,12 @@
 	
   Valores: En Cafés 1808 creemos en la naturalidad y en el trabajo hecho con mimo y respeto. Apostamos por una producción sostenible y consciente. Por eso, prestamos atención a cada detalle para conseguir un resultado que cuide a nuestros clientes, trabajadores, proveedores y a todas las personas que ponen su granito para crear y disfrutar de un café único.
 	
-  Misión: En Cafés 1808 nuestra misión es demostrar nuestra pasión por el café, ser referentes en el sector de los tostadores y la primera opción para distribuir café en la hostelería de la Comunidad de Madrid, así como en las casas de todos los buenos amantes del café de calidad. 
-
+### Misión
+  La misión de Cafés 1808 es demostrar nuestra pasión por el café, ser referentes en el sector de los tostadores y la primera opción para distribuir café en la hostelería de la Comunidad de Madrid, así como en las casas de todos los buenos amantes del café de calidad. 
 
 ## **Devoluciones y Reembolsos**
+
+### Tiempo de Devolucion
 	Dispone de 14 días naturales para cualquier cambio o devolución desde que recibe el producto en su domicilio/recoge el artículo en la opción de Recogida en Tienda, esta fecha será la que conste en el albarán de entrega. En dicho periodo tendrá que hacer llegar la devolución a nuestra oficina junto con el formulario de devolución que se puede descargar en el siguiente link https://cafes1808.com/desistimiento a la siguiente dirección:
 
 	Oficina Principal: CAFES 1808 S.A.
@@ -33,7 +35,8 @@
 	Envío Estándar
 	 tiempo de entrega 24/48h hábiles, en pedidos realizados antes de las 10.00h, posterior a esta hora se fijará fecha de pedido el siguiente día hábil.
 
-	Recogida en tienda
+
+### Recogida en tienda
 	El pedido estará listo para recoger al día siguiente entre las 8 y 16h, para pedidos realizados antes de las 14.00h. Posterior a esta hora, el día el pedido será tratado como con fecha del día siguiente hábil.  En todo caso siempre se avisará al cliente cuando su pedido esté preparado.
 
 ## **Garantía**
@@ -47,7 +50,7 @@
 - **Tipo**: 100% Arábica
 - **Origen**: Colombia (>1200m altitud)
 - **Tueste**: Artesanal en Móstoles
-- **Destacado**: "Café de especialidad para cafeteros exigentes. Excelencia"
+- **Destacado**: "Café de especialidad para cafeteros exigentes. Excelencia en cálidad"
 - **Tamaños**:
   - `1kg`: 23.75€
   - `500g`: 11.90€
@@ -128,14 +131,15 @@
   - "Capsula"
 - **Uso**: Exclusivo máquinas 1808
 
-## **Forma de Pago**
+## **Formas de Pago**
 	Los precios exhibidos en el sitio web son finales, en euros (€) e incluyen los impuestos que fiscalmente sean de su aplicación, salvo que, por exigencia legal, especialmente en lo relativo al IVA, se señale y aplique en cuestión distinta.
 
 	En ningún caso el sitio web añadirá costes adicionales al precio de un producto o de un servicio de forma automática, sino solo aquellos que el CLIENTE haya seleccionado y elegido voluntaria y libremente.
 
 	Los precios pueden cambiar en cualquier momento, pero los posibles cambios no afectarán a los pedidos o compras con respecto a los que el CLIENTE ya haya recibido una confirmación del pedido.
 
-	Metodos de pagos se pueden realizar con tarjeta de débito o crédito, transferencia bancaria y a través de la plataforma PayPal.
+### Formas de pago / Métodos de pago 
+  Metodos de pagos se pueden realizar con tarjeta de débito o crédito, transferencia bancaria y a través de la plataforma PayPal.
 
 ## **Contacto**
  - Dirección: Calle Fragua, 6 - 28933 Móstoles – Madrid
