@@ -1,5 +1,5 @@
 import json
-import argparse
+
 import numpy as np
 from config.openai_client import client
 from util.generate_response import generate_response, cosine_similarity
@@ -7,9 +7,6 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
-#def cosine_similarity(vec1, vec2):
-#    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 def create_query_embedding(query, model="BAAI/bge-en-icl"):
     response = client.embeddings.create(model=model, input=query)
@@ -20,16 +17,6 @@ def semantic_search(query, chunks, embeddings, k=2):
    scores = [(i, cosine_similarity(query_vec, emb)) for i, emb in enumerate(embeddings)]
    top_indices = sorted(scores, key=lambda x: x[1], reverse=True)[:k]
    return [chunks[i] for i, _ in top_indices]
-
-#def semantic_search(query, chunks, embeddings, k=2):
-#    query_vec = np.asarray(create_query_embedding(query, os.getenv("EMBEDDINGS_MODEL")))
-#    if query_vec.ndim == 1:
-#        query_vec = query_vec.reshape(1, -1) 
-#        
-#    similarities = cosine_similarity(query_vec, embeddings)  # shape [1, n_chunks]
-#    top_indices = np.argsort(similarities[0])[-k:][::-1]  # descending order
-#    
-#    return [chunks[i] for i in top_indices]
 
 def load_data(data_path="model_data.json"):
     with open(data_path) as f:
