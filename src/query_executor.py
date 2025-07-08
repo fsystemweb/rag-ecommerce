@@ -8,7 +8,7 @@ import os
 
 load_dotenv()
 
-def create_query_embedding(query, model="BAAI/bge-en-icl"):
+def create_query_embedding(query, model="BAAI/bge-multilingual-gemma2"):
     response = client.embeddings.create(model=model, input=query)
     return response.data[0].embedding
 
@@ -34,7 +34,7 @@ def build_context_prompt(top_chunks, query):
 
 def process_query(query, chunks, embeddings):
     top_chunks = semantic_search(query, chunks, embeddings)
-    return generate_response(build_context_prompt(top_chunks, query), os.getenv("MODEL_RAG_1"))
+    return generate_response(build_context_prompt(top_chunks, query), os.getenv("MODEL_RAG_3"))
 
 def interactive_mode(chunks, embeddings):
     while True:

@@ -134,6 +134,8 @@
 ## **Formas de Pago**
 	Los precios exhibidos en el sitio web son finales, en euros (€) e incluyen los impuestos que fiscalmente sean de su aplicación, salvo que, por exigencia legal, especialmente en lo relativo al IVA, se señale y aplique en cuestión distinta.
 
+  Los precios incluyen IVA.
+
 	En ningún caso el sitio web añadirá costes adicionales al precio de un producto o de un servicio de forma automática, sino solo aquellos que el CLIENTE haya seleccionado y elegido voluntaria y libremente.
 
 	Los precios pueden cambiar en cualquier momento, pero los posibles cambios no afectarán a los pedidos o compras con respecto a los que el CLIENTE ya haya recibido una confirmación del pedido.

@@ -14,10 +14,10 @@ def extract_text_from_md(md_path):
     with open(md_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def chunk_text(text, n=300, overlap=150):
+def chunk_text(text, n=1000, overlap=200):
     return [text[i:i+n] for i in range(0, len(text), n - overlap)]
 
-def create_embeddings(chunks, model="BAAI/bge-en-icl"):
+def create_embeddings(chunks, model="BAAI/bge-multilingual-gemma2"):
     response = client.embeddings.create(model=model, input=chunks)
     embeddings = [item.embedding for item in response.data]
     return embeddings
