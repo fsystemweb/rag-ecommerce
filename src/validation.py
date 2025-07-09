@@ -1,5 +1,4 @@
 import json
-import re
 import numpy as np
 import matplotlib.pyplot as plt
 from query_executor import load_data, process_batch_query

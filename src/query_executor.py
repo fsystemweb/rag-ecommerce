@@ -1,6 +1,5 @@
 import json
 
-import numpy as np
 from config.openai_client import client
 from util.generate_response import generate_response, cosine_similarity
 from dotenv import load_dotenv

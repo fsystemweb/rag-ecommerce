@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def extract_text_from_pdf(pdf_path):
+def extract_text_from_pdf(pdf_path): # Alternativa pero no utilizado para nuestra solución
     doc = fitz.open(pdf_path)
     return "".join([page.get_text("text") for page in doc])
 
