@@ -1,7 +1,7 @@
 import json
 
-from config.openai_client import client
-from util.generate_response import generate_response, cosine_similarity
+from src.config.openai_client import client
+from src.util.generate_response import generate_response, cosine_similarity
 from dotenv import load_dotenv
 import os
 
@@ -47,6 +47,11 @@ def interactive_mode(chunks, embeddings):
         print("AI Answer:\n", ai_answer)
 
 def process_batch_query(query: str, chunks, embeddings) -> str:
+    answer = process_query(query, chunks, embeddings)
+    return answer
+
+def process_ui_query(query):
+    chunks, embeddings = load_data()
     answer = process_query(query, chunks, embeddings)
     return answer
 

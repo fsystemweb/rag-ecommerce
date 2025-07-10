@@ -1,4 +1,4 @@
-from config.openai_client import client
+from src.config.openai_client import client
 import numpy as np
 import re
 

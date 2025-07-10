@@ -59,3 +59,8 @@ After adding your data.md file.
 2. Start the query agent:
    ```bash
    python query_executor.py
+
+# Start Application
+   - From the root folder.
+   ```bash
+   PYTHONPATH=$(pwd) streamlit run src/ui/app.py

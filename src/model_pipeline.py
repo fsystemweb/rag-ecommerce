@@ -1,7 +1,7 @@
 import fitz
 import os
 import json
-from config.openai_client import client
+from src.config.openai_client import client
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +26,24 @@ def save_model_data(chunks, embeddings, output_file="model_data.json"):
     data = [{"chunk": c, "embedding": e} for c, e in zip(chunks, embeddings)]
     with open(output_file, "w") as f:
         json.dump(data, f)
+
+def generate_app_embeddings(text: str) -> None:
+    if not text.strip():
+        raise ValueError("Input text is empty.")
+    try:
+        chunks = chunk_text(text)
+        if not chunks:
+            raise ValueError("Text chunking failed: no chunks created.")
+
+        model_name = os.getenv("EMBEDDINGS_MODEL")
+        if not model_name:
+            raise EnvironmentError("Missing EMBEDDINGS_MODEL environment variable.")
+
+        embeddings = create_embeddings(chunks, model_name)
+        save_model_data(chunks, embeddings)
+    except Exception as e:
+        print(f"Embedding error: {e}")
+        raise
 
 if __name__ == "__main__":
     data_path = "../data/data.md"
