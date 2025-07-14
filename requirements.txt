@@ -4,3 +4,4 @@ openai==1.93.0
 load_dotenv
 matplotlib # For data analysis
 networkx # For data analysis
+seaborn
