@@ -12,19 +12,19 @@ stopwords_es = set([
 
 def clean_text(text):
     text = text.lower()
-    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE) # Eliminar URLs
-    text = re.sub(r'[^\w\s]', '', text) # Eliminar puntuación
-    text = re.sub(r'\d+', '', text) # Eliminar números
-    text = re.sub(r'\s+', ' ', text).strip() # Eliminar espacios extra
+    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE) # Remove URLs
+    text = re.sub(r'[^\w\s]', '', text) # Remove puntuation
+    text = re.sub(r'\d+', '', text) # Remove numbers
+    text = re.sub(r'\s+', ' ', text).strip() # Remove blank spaces
     return text
 
 def tokenize_and_filter_words(text):
     words = text.split()
-    # Filtrar palabras que están en la lista de stopwords o son muy cortas
+    # Filter stopwords and short connections words
     filtered_words = [word for word in words if word not in stopwords_es and len(word) > 2]
     return filtered_words
 
-# Cargar data
+# Load data
 with open('../data/data.md', 'r', encoding='utf-8') as f:
     md_text = f.read()
 
@@ -33,11 +33,11 @@ tokens = tokenize_and_filter_words(cleaned_data)
 
 term_frequencies = Counter(tokens)
 
-# Obtener los 20 términos más comunes
+# GEt 20 more frequent words
 most_common_terms = term_frequencies.most_common(20)
 df_terms = pd.DataFrame(most_common_terms, columns=['Termino', 'Frecuencia'])
 
-# Crear el gráfico de barras
+# Plotting
 plt.figure(figsize=(12, 7))
 sns.barplot(x='Frecuencia', y='Termino', data=df_terms, palette='viridis')
 plt.title('Top 20 Términos Más Frecuentes', fontsize=16)
