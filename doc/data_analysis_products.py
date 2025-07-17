@@ -1,108 +1,68 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import re
 
-products = [
-  {
-    "name": "1808 Colombia Natural",
-    "Tipo": "100% Arábica",
-    "Origen": "Colombia (>1200m altitud)",
-    "Tueste": "Artesanal en Móstoles",
-    "Destacado": "Café de especialidad para cafeteros exigentes",
-    "Formatos": {
-      "1kg": "23.75€",
-      "500g": "11.90€",
-      "250g": "6.45€"
-    },
-    "Molido": [
-      "Express",
-      "Filtro",
-      "Italiana",
-      "Prensa francesa",
-      "Grano"
-    ],
-    "Prep": "Cafetera italiana: llenar sin prensar"
-  },
-  {
-    "name": "1808 Descafeinado Natural",
-    "Tipo": "Blend Arábica/Robusta",
-    "Proceso": "Descafeinado artesanal",
-    "Destacado": "Café de especialidad para cafeteros exigentes",
-    "Formatos": {
-      "1kg": "23.75€",
-      "500g": "11.90€",
-      "250g": "6.45€"
-    },
-    "Molido": [
-      "Express",
-      "Filtro",
-      "Italiana",
-      "Prensa francesa",
-      "Grano"
-    ]
-  },
-  {
-    "name": "1808 Arábica Natural",
-    "Origen": "Brasil/Honduras/Colombia",
-    "Destacado": "Sabor potente con postgusto prolongado",
-    "Formatos": {
-      "1kg": "21.90€",
-      "500g": "11.00€",
-      "250g": "5.95€"
-    },
-    "Molido": [
-      "Express",
-      "Filtro",
-      "Italiana",
-      "Prensa francesa",
-      "Grano"
-    ]
-  },
-  {
-    "name": "1808 Arábica 80/20",
-    "Mezcla": "80% Natural + 20% Torrefacto",
-    "Destacado": "Crema voluminosa",
-    "Formatos": {
-      "1kg": "21.90€",
-      "500g": "11.00€",
-      "250g": "5.95€"
-    },
-    "Molido": [
-      "Express",
-      "Filtro",
-      "Italiana",
-      "Prensa francesa",
-      "Grano"
-    ]
-  },
-  {
-    "name": "Cápsulas Máxima",
-    "Contenido": "50 uds (Etiopía/México/Guatemala/Brasil)",
-    "Precio": "13.75€",
-    "Uso": "Exclusivo máquinas 1808",
-    "Formatos": ["Capsula"]
-  },
-  {
-    "name": "Cápsulas Italiano",
-    "Contenido": "50 uds",
-    "Mezcla": "Arábica Brasil + Robusta India",
-    "Tueste": "Italiano intenso",
-    "Precio": "13.75€",
-    "Formatos": ["Capsula"],
-    "Uso": "Exclusivo máquinas 1808"
-  },
-  {
-    "name": "Cápsulas Descafeinado",
-    "Contenido": "50 uds",
-    "Origen": "Colombia/Brasil/Vietnam",
-    "Proceso": "Descafeinado natural",
-    "Precio": "13.75€",
-    "Formatos": ["Capsula"],
-    "Uso": "Exclusivo máquinas 1808"
-  }
-]
 
+def read_md_file_and_parsing_products():
+  # Step 1: Read Markdown File
+  with open('../data/data.md', 'r', encoding='utf-8') as f:
+      md_content = f.read()
+
+  # Step 2: Extract Product Sections
+  info_productos_block = re.search(
+      r"## \*\*Información de Productos\*\*\n(.*?)(?=\n## |\Z)", 
+      md_content, 
+      re.DOTALL
+  )
+
+  productos_text = info_productos_block.group(1)
+
+  product_blocks = re.findall(
+    r"### (.*?)\n(.*?)(?=\n### |\Z)", 
+    productos_text, 
+    re.DOTALL
+  )
+
+  # Step 3: Parse Each Product Block
+  for title, block in product_blocks:
+    product = {"name": title.strip()}
+    lines = block.strip().splitlines()
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        if re.match(r"^- \*\*(.*?)\*\*: (.*)", line):
+            key, value = re.findall(r"^- \*\*(.*?)\*\*: (.*)", line)[0]
+            product[key.strip()] = value.strip()
+
+        elif re.match(r"^- `.*?`: .*?€", line):
+            if "Tamaños" not in product:
+                product["Tamaños"] = []
+                product["TamañosPrecios"] = {}
+            size, price = re.findall(r"`(.*?)`: (.*?)€", line)[0]
+            product["Tamaños"].append(size)
+            product["TamañosPrecios"][size] = f"{price}€"
+
+        elif re.match(r"^- \[x\] (.+)", line):
+            if "Formatos" not in product:
+                product["Formatos"] = []
+            formato = re.findall(r"^- \[x\] (.+)", line)[0]
+            product["Formatos"].append(formato.strip())
+
+        elif ": " in line:
+            key, value = line.split(": ", 1)
+            product[key.strip()] = value.strip()
+    products.append(product)
+
+
+
+products = []
 
 G = nx.Graph()
+
+read_md_file_and_parsing_products()
 
 # Add nodes and edges product -> attribute
 for product in products:
@@ -119,7 +79,7 @@ for product in products:
             for k, v in attr_value.items():
                 attr_node = f"{attr_name}: {k} = {v}"
                 G.add_node(attr_node, type='attribute')
-                G.add_edge(product_name, attr_node, label=attr_name)
+                G.add_edge(product_name, attr_node, label=attr_name)               
         
         elif isinstance(attr_value, list):
             # For list attributes like 'Molido' or 'Formatos' (capsula)
@@ -137,7 +97,6 @@ for product in products:
 pos = nx.spring_layout(G, k=0.5)
 
 plt.figure(figsize=(8, 6)) 
-
 
 node_colors = ['lightblue' if G.nodes[n]['type'] == 'product' else 'lightgreen' for n in G.nodes()]
 nx.draw(G, pos, with_labels=True, node_color=node_colors, font_size=8, node_size=500)
