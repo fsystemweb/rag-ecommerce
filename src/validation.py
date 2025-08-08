@@ -11,13 +11,18 @@ from util.generate_response import cosine_similarity
 load_dotenv()
 
 
-metrics_path = Path("../metrics")
+base_dir = Path(__file__).parent.resolve()
+
+# Then define metrics_path relative to script location
+metrics_path = base_dir.parent / "metrics"  # ../metrics relative to src/validation.py
 
 # Configuración inicial
 validation_data = {}
 
 def load_val_data():
-    with open("../data/val.json") as f:
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    val_path = os.path.join(base_path, "../data/val.json")
+    with open(val_path) as f:
         return json.load(f)
 
 def evaluate_response(ai_response, ideal_answer, threshold=0.6):
@@ -111,56 +116,56 @@ def generate_plot(aggregates):
     plt.savefig(metrics_path / "efectividad_secciones.png")
     plt.close()
 
-def generate_table(aggregates):
-    headers = ["Secciones", "Similitud", "Pass Threshold"]
+def generate_table(aggregates, threshold=0.6):
+    headers = ["Secciones", "Similitud", "Pass Rate"]
     table_data = []
 
     for section, values in aggregates.items():
         similarity = f"{values['similarity']:.3f}" 
-        pass_threshold = f"{values['pass_threshold']:.3f}"
-        table_data.append([section, similarity, pass_threshold])
+        pass_rate = f"{values['pass_threshold']:.3f}"  # pass_threshold here is the pass rate (mean of pass/fail)
+        table_data.append([section, similarity, pass_rate])
 
-
-    table_data.sort(key=lambda x: float(x[1]), reverse=True)
+    table_data.sort(key=lambda x: float(x[2]), reverse=True)  # Sort by pass rate descending
 
     fig, ax = plt.subplots(figsize=(8, 6)) 
 
     ax.axis('off')
     ax.axis('tight')
 
-
     table = ax.table(cellText=table_data,
                     colLabels=headers,
                     loc='center',
                     cellLoc='center') 
 
-
     table.auto_set_font_size(False)
     table.set_fontsize(10)
     table.scale(1.2, 1.2) 
 
+    target_pass_rate = threshold  # Define your target pass rate here
 
     for (row, col), cell in table.get_celld().items():
         if row == 0: 
             cell.set_facecolor("#406882") 
             cell.set_text_props(color='white', fontweight='bold')
-        elif float(table_data[row-1][1]) >= float(table_data[row-1][2]):
-            cell.set_facecolor("#F8D7DA")
         else:
-            cell.set_facecolor("#D4EDDA")
+            # Coloring only based on pass rate column
+            pass_rate_value = float(table_data[row-1][2])
 
+            if pass_rate_value >= target_pass_rate:
+                cell.set_facecolor("#D4EDDA")  # Green: good
+            else:
+                cell.set_facecolor("#F8D7DA")  # Red: needs improvement
 
         if col == 0:
             cell.set_width(0.3)
         elif col in [1, 2]:
             cell.set_width(0.2)
 
-
-    ax.set_title("Similitud por Seccion", fontsize=16, pad=20)
+    ax.set_title("Similitud y Pass Rate por Sección", fontsize=16, pad=20)
 
     plt.tight_layout() 
     plt.savefig(metrics_path / "tabla_efectividad_secciones.png")
-    plt.close()    
+    plt.close()
 
 
 def log_entry(data, log_file="log.txt"):

@@ -33,7 +33,7 @@ def build_context_prompt(top_chunks, query):
 
 def process_query(query, chunks, embeddings):
     top_chunks = semantic_search(query, chunks, embeddings)
-    return generate_response(build_context_prompt(top_chunks, query), os.getenv("MODEL_RAG_3"))
+    return generate_response(build_context_prompt(top_chunks, query), os.getenv("MODEL_RAG_1"))
 
 def interactive_mode(chunks, embeddings):
     while True:
