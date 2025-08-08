@@ -2,8 +2,9 @@
 
 A Retrieval-Augmented Generation (RAG) system implementation for e-commerce applications. This system enhances language model responses with relevant information retrieved from your product database.
 
-**Example Application**: [Cafés 1808](https://www.cafes1808.com/)
+⚠️ Disclaimer: This project is intended for educational purposes only and is not production-ready.
 
+**Example Application**: [Cafés 1808](https://www.cafes1808.com/)
 
 ## Prerequisites
 
