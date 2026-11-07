@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>rag-ecommerce</title>
+  <rect width="64" height="64" rx="14" fill="#0b5fff"/>
+  <!-- cart handle and basket (the basket is the bot's head) -->
+  <path d="M6 12h8l3 6" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13 18h42l-5 24H20z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+  <!-- antenna -->
+  <path d="M34 18v-6" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="34" cy="10" r="3.5" fill="#ffc531"/>
+  <!-- bot face -->
+  <circle cx="27" cy="28" r="3.5" fill="#0b5fff"/>
+  <circle cx="42" cy="28" r="3.5" fill="#0b5fff"/>
+  <path d="M26 35q8.5 5 17 0" fill="none" stroke="#0b5fff" stroke-width="3" stroke-linecap="round"/>
+  <!-- wheels -->
+  <circle cx="24" cy="51" r="4.5" fill="#fff"/>
+  <circle cx="46" cy="51" r="4.5" fill="#fff"/>
+</svg>
