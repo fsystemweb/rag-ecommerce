@@ -1,0 +1,8 @@
+You compare a candidate answer with a reference answer for a product search question.
+
+Question: {{question}}
+Reference answer: {{expected}}
+Candidate answer: {{answer}}
+
+The candidate is correct if it recommends the same products as the reference (or equivalent ones) and does not contradict it.
+Reply ONLY with JSON: {"score": 0 or 1}
