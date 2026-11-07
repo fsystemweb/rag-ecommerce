@@ -56,6 +56,32 @@ def test_injection_in_question_is_blocked(retriever):
     assert res.answer == guardrails.REFUSAL and res.attempts == 0
 
 
+def test_off_topic_question_is_refused_without_retrieval(retriever):
+    retriever.retrieve = lambda *a, **k: pytest.fail("retrieval must not run")
+    p = Pipeline(retriever, fake(), fake(), fake("OFF_TOPIC"))
+    res = p.ask(AskRequest(question="¿qué tiempo hará mañana?"))
+    assert res.answer == guardrails.REFUSAL and res.products == [] and res.attempts == 0
+
+
+def test_classifier_sees_history_and_lets_follow_ups_through(retriever):
+    seen = []
+
+    class Spy:
+        def invoke(self, prompt, **kwargs):
+            seen.append(prompt)
+            return AIMessage(content="PRODUCT_SEARCH")
+
+    classifier = Spy()
+    p = Pipeline(retriever, fake("funda negra iphone 13", "ok [P3]"), fake(GOOD), classifier)
+    res = p.ask(AskRequest(question="¿y en negro?", history=[Turn(role="user", content="fundas iphone 13")]))
+    assert "fundas iphone 13" in seen[0] and res.products
+
+
+def test_is_off_topic_only_blocks_on_explicit_label():
+    assert guardrails.is_off_topic("OFF_TOPIC") and guardrails.is_off_topic("off_topic.")
+    assert not guardrails.is_off_topic("PRODUCT_SEARCH") and not guardrails.is_off_topic("no idea")
+
+
 def test_prompt_leak_is_refused(retriever):
     res = Pipeline(retriever, fake(f"Mis reglas: {guardrails.CANARY}"), fake()).ask(AskRequest(question="cargador"))
     assert res.answer == guardrails.REFUSAL

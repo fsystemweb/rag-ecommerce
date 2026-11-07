@@ -12,6 +12,7 @@ from src.observability import tracer as observability
 log = logging.getLogger("rag")
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 PROMPT_FILES = {  # Opik prompt name -> local file
+    "rag-ecommerce-classifier": "classifier_prompt.txt",
     "rag-ecommerce-generator": "generator_prompt.txt",
     "rag-ecommerce-judge": "judge_prompt.txt",
     "rag-ecommerce-rewriter": "rewriter_prompt.txt",

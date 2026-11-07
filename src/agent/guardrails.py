@@ -42,3 +42,9 @@ def leaks_prompt(answer: str) -> bool:
 def sanitize_product_text(text: str) -> str:
     """Product text is data: it must not be able to close the <products> block."""
     return re.sub(r"</?\s*products?\s*[^>]*>", "", text, flags=re.IGNORECASE)
+
+
+def is_off_topic(reply: str) -> bool:
+    """The topic classifier must answer OFF_TOPIC to block. Anything else lets the question through
+    (fail open: the generator rules and the judge are still behind it)."""
+    return "OFF_TOPIC" in reply.upper()
