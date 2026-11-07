@@ -1,4 +1,4 @@
-"""FastAPI app. Run with: python -m app.main"""
+"""FastAPI app. Run with: python main.py"""
 
 import json
 from contextlib import asynccontextmanager
@@ -8,13 +8,13 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from app import config
-from app.models import AskRequest, AskResponse
+from src.core import config
+from src.core.models import AskRequest, AskResponse
 
 
 @asynccontextmanager
 async def lifespan(_):
-    from app.opik_sync import seed_prompts
+    from src.observability.opik_sync import seed_prompts
 
     seed_prompts()  # no-op without Opik
     yield
@@ -32,15 +32,15 @@ app.add_middleware(
 @lru_cache
 def get_pipeline():
     """Built on the first request, so /health works without a key or a store."""
-    from app.chains import Pipeline
-    from app.ingestion import get_store
-    from app.retriever import Retriever
+    from src.agent.rag_agent import Pipeline
+    from src.agent.retriever import Retriever
+    from src.ingestion.index import get_store
 
     if not config.NEBIUS_API_KEY:
         raise HTTPException(503, "NEBIUS_API_KEY is not set. Copy .env.example to .env and fill it.")
     store = get_store()
     if store._collection.count() == 0:
-        raise HTTPException(503, "The vector store is empty. Run: python -m app.ingestion")
+        raise HTTPException(503, "The vector store is empty. Run: python -m src.ingestion")
     return Pipeline(Retriever(store))
 
 
@@ -70,4 +70,4 @@ def ask_stream(req: AskRequest, pipeline=Depends(get_pipeline)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000)

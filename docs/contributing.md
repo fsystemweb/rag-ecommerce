@@ -1,6 +1,6 @@
 # Contributing, cost and safety
 
-Rules live in [`AGENTS.md`](https://github.com/fsystemweb/rag-ecommerce/blob/main/AGENTS.md): keep it simple, imports with `app.`, settings only in `app/config.py`, prompts only in `app/prompts/`, tests offline (`pytest`), lint with `ruff`. Ask before adding a dependency, changing the `/ask` shape, the judge threshold or the golden dataset.
+Rules live in [`AGENTS.md`](https://github.com/fsystemweb/rag-ecommerce/blob/main/AGENTS.md): keep it simple, imports with `src.`, settings only in `src/core/config.py`, prompts only in `src/agent/prompts/`, tests offline (`pytest`), lint with `ruff`. Ask before adding a dependency, changing the `/ask` shape, the judge threshold or the golden dataset.
 
 ## Cost and safety
 

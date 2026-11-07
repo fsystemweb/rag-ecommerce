@@ -5,7 +5,7 @@ Without Opik everything here is a no-op, so the app works as before.
 
 import logging
 
-from app import config
+from src.core import config
 
 log = logging.getLogger("rag")
 ENABLED = bool(config.OPIK_URL_OVERRIDE)
@@ -17,7 +17,7 @@ def track(name: str, **kwargs):
         return lambda fn: fn
     import opik
 
-    return opik.track(name=name, **kwargs)
+    return opik.track(name=name, project_name=config.OPIK_PROJECT_NAME, **kwargs)
 
 
 def llm_config() -> dict:
@@ -26,7 +26,7 @@ def llm_config() -> dict:
         return {}
     from opik.integrations.langchain import OpikTracer
 
-    return {"callbacks": [OpikTracer()]}
+    return {"callbacks": [OpikTracer(project_name=config.OPIK_PROJECT_NAME)]}
 
 
 def tag_trace(tags: list[str], metadata: dict):
@@ -48,7 +48,7 @@ def client():
     try:
         import opik
 
-        return opik.Opik()
+        return opik.Opik(project_name=config.OPIK_PROJECT_NAME)
     except Exception as e:
         log.warning("Opik unavailable: %s", e)
         return None

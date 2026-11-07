@@ -14,8 +14,8 @@ pip install -r requirements-dev.txt
 cp .env.example .env            # set NEBIUS_API_KEY
 python -m scripts.download_data # ~1 GB, once
 python -m scripts.sample_catalog --size 10000
-python -m app.ingestion         # embeds the catalog (paid, asks to confirm)
-python -m app.main              # API on :8000
+python -m src.ingestion         # embeds the catalog (paid, asks to confirm)
+python main.py              # API on :8000
 python -m http.server 5500      # chat page: http://localhost:5500/public/
 ```
 
@@ -35,7 +35,7 @@ scripts/opik.sh up                  # UI on http://localhost:5173
 # in .env: OPIK_URL_OVERRIDE=http://localhost:5173/api
 ```
 
-Without `OPIK_URL_OVERRIDE` nothing changes. Prompts are read from Opik first (names `rag-ecommerce-generator|judge|rewriter`) and fall back to `app/prompts/*.txt`.
+Without `OPIK_URL_OVERRIDE` nothing changes. Prompts are read from Opik first (names `rag-ecommerce-generator|judge|rewriter`) and fall back to `src/agent/prompts/*.txt`.
 
 ## Cost
 

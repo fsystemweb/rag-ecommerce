@@ -7,7 +7,7 @@ fallback when Opik is off, unreachable, or does not have the prompt yet.
 import logging
 from pathlib import Path
 
-from app import observability
+from src.observability import tracer as observability
 
 log = logging.getLogger("rag")
 PROMPTS_DIR = Path(__file__).parent / "prompts"

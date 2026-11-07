@@ -4,7 +4,7 @@ Usage: python -m scripts.sample_catalog --size 10000 [--seed 42]
 
 Outputs data/catalog.parquet and data/queries.parquet.
 Products labeled E or S for the golden queries are always kept
-(evaluation/datasets/golden_queries.txt, one query per line), then the
+(src/evaluation/datasets/golden_queries.txt, one query per line), then the
 rest is filled with random products so retrieval is not trivial.
 """
 
@@ -13,9 +13,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from app.config import DATA_DIR, ROOT
+from src.core.config import DATA_DIR, ROOT
 
-GOLDEN_QUERIES = ROOT / "evaluation" / "datasets" / "golden_queries.txt"
+GOLDEN_QUERIES = ROOT / "src" / "evaluation" / "datasets" / "golden_queries.txt"
 
 
 def build(products, examples, size, seed, golden_queries):

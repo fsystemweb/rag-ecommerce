@@ -64,7 +64,7 @@ Thumbs.db
 # Data files
 # (CSV is ignored, but the golden dataset is versioned)
 *.csv
-!evaluation/datasets/*.csv
+!src/evaluation/datasets/*.csv
 *.tsv
 *.xls
 *.xlsx
@@ -122,4 +122,4 @@ solutions/*/model_data.json
 .opik/
 
 # Evaluation outputs
-evaluation/results/
+src/evaluation/results/

@@ -1,84 +1,24 @@
-"""Ingestion: catalog -> product documents -> chunks -> embeddings -> Chroma.
+"""Indexing: chunks -> embeddings -> Chroma (the catalog and chunking live in loader.py and chunker.py).
 
-Run: python -m app.ingestion [--limit N] [--yes]
+Run: python -m src.ingestion [--limit N] [--yes]
 
 Safe to re-run: chunk ids are "product_id:chunk_index", and ids already in
 the store are skipped, so an interrupted run just continues.
 """
 
 import argparse
-import html
-import re
 import time
 
 import pandas as pd
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from app import config
-from app.llm import make_embeddings
+from src.core import config
+from src.core.llm import make_embeddings
+from src.ingestion.chunker import split
+from src.ingestion.loader import load_catalog
 
-# One product usually fits in one chunk. ~1000 chars is about 250 tokens: small
-# enough to stay focused, big enough to keep a description together.
-# Overlap 100 keeps a sentence cut at the border readable in both chunks.
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 100
-MAX_TEXT_CHARS = 3000  # very long descriptions are noise; cut them
 BATCH_SIZE = 100
-
-
-def load_catalog(limit: int | None = None) -> pd.DataFrame:
-    df = pd.read_parquet(config.DATA_DIR / "catalog.parquet")
-    return df.head(limit) if limit else df
-
-
-def clean(text) -> str:
-    """Remove HTML tags/entities and repeated spaces."""
-    if not isinstance(text, str):
-        return ""
-    text = re.sub(r"<[^>]+>", " ", html.unescape(text))
-    return re.sub(r"\s+", " ", text).strip()
-
-
-def build_document(row) -> tuple[str, str]:
-    """Return (header, body). The header is repeated in every chunk."""
-    header = f"Título: {clean(row['product_title'])}"
-    brand, color = clean(row["product_brand"]), clean(row["product_color"])
-    if brand:
-        header += f" | Marca: {brand}"
-    if color:
-        header += f" | Color: {color}"
-    body = ""
-    desc, bullets = clean(row["product_description"]), clean(row["product_bullet_point"])
-    if desc:
-        body += f"Descripción: {desc} "
-    if bullets:
-        body += f"Características: {bullets}"
-    return header, body.strip()[:MAX_TEXT_CHARS]
-
-
-_splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-
-
-def split(row) -> list[Document]:
-    """One product -> one or more chunks, each with title/brand and metadata."""
-    header, body = build_document(row)
-    pieces = _splitter.split_text(body) if body else [""]
-    meta = {
-        "product_id": str(row["product_id"]),
-        "title": clean(row["product_title"]),
-        "brand": clean(row["product_brand"]),
-        "color": clean(row["product_color"]),
-    }
-    return [
-        Document(
-            page_content=f"{header}\n{piece}".strip(),
-            metadata={**meta, "chunk_index": i},
-            id=f"{meta['product_id']}:{i}",
-        )
-        for i, piece in enumerate(pieces)
-    ]
 
 
 def get_store(embeddings=None) -> Chroma:

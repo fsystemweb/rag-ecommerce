@@ -10,10 +10,10 @@ from dataclasses import dataclass, field
 
 from rank_bm25 import BM25Okapi
 
-from app import config
-from app.llm import make_llm
-from app.observability import track
-from app.prompt_loader import load_prompt, render
+from src.agent.prompt_loader import load_prompt, render
+from src.core import config
+from src.core.llm import make_llm
+from src.observability.tracer import track
 
 POOL = 20  # candidates taken from each side before fusing
 RRF_C = 60  # standard RRF constant

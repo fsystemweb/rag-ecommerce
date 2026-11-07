@@ -1,8 +1,8 @@
 import pytest
 
-from evaluation import run
-from evaluation.dataset import GOLDEN_CSV, load_golden
-from evaluation.test_metrics import *  # noqa: F401,F403  (run the metric checks under pytest too)
+from src.evaluation import evaluator as run
+from src.evaluation.dataset import GOLDEN_CSV, load_golden
+from src.evaluation.test_metrics import *  # noqa: F401,F403  (run the metric checks under pytest too)
 
 HEADER = "id,input,expected_product_ids,acceptable_product_ids,expected_output,answerable,question_type,source,history\n"
 

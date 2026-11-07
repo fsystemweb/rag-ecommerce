@@ -1,5 +1,6 @@
-from app import observability, prompt_loader
-from app.prompt_loader import load_prompt, render
+from src.agent import prompt_loader
+from src.agent.prompt_loader import load_prompt, render
+from src.observability import tracer as observability
 
 
 def test_render_replaces_placeholders_without_escaping():

@@ -6,6 +6,6 @@
 
 **Why at least 5 chunks?** One hit is fragile; five distinct products allow comparison and make recall measurable.
 
-**How do I change a prompt?** Edit it in Opik and restart the API (source `opik`), or edit `app/prompts/*.txt`. Re-run the evaluation afterwards.
+**How do I change a prompt?** Edit it in Opik and restart the API (source `opik`), or edit `src/agent/prompts/*.txt`. Re-run the evaluation afterwards.
 
-**How do I use my own catalog?** Produce `data/catalog.parquet` with columns `product_id`, `product_title`, `product_description`, `product_bullet_point`, `product_brand`, `product_color`, run `python -m app.ingestion`, and replace the golden dataset.
+**How do I use my own catalog?** Produce `data/catalog.parquet` with columns `product_id`, `product_title`, `product_description`, `product_bullet_point`, `product_brand`, `product_color`, run `python -m src.ingestion`, and replace the golden dataset.

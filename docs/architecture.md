@@ -18,18 +18,20 @@ flowchart LR
 
 | File | What it does |
 |---|---|
-| `app/main.py` | FastAPI routes: `/health`, `/ask`, `/ask/stream` |
-| `app/config.py` | The only place that reads environment variables |
-| `app/models.py` | Pydantic models (`Product`, `AskRequest`, `AskResponse`) |
-| `app/ingestion.py` | Catalog to documents, chunks, embeddings, Chroma. Resumable |
-| `app/retriever.py` | Dense + BM25 search merged with Reciprocal Rank Fusion |
-| `app/chains.py` | The pipeline: rewrite, retrieve, generate, judge, retry |
-| `app/guardrails.py` | Input checks, injection rules, retry constants |
-| `app/prompt_loader.py`, `app/opik_sync.py` | Prompts from Opik, local files as fallback |
-| `app/observability.py` | Opt-in Opik tracing |
-| `app/prompts/*.txt` | Prompt templates (never inline) |
+| `main.py` | FastAPI routes: `/health`, `/ask`, `/ask/stream` (entrypoint) |
+| `src/core/config.py` | The only place that reads environment variables |
+| `src/core/llm.py` | Chat and embeddings clients (Nebius) |
+| `src/core/models.py` | Pydantic models (`AskRequest`, `AskResponse`) |
+| `src/ingestion/loader.py`, `chunker.py` | Read the catalog; clean text and split products into chunks |
+| `src/ingestion/index.py` | Embeddings and Chroma. Resumable (`python -m src.ingestion`) |
+| `src/agent/retriever.py` | Dense + BM25 search merged with Reciprocal Rank Fusion |
+| `src/agent/rag_agent.py` | The pipeline: rewrite, retrieve, generate, judge, retry |
+| `src/agent/guardrails.py` | Input checks, injection rules, retry constants |
+| `src/agent/prompt_loader.py` | Prompts from Opik, local files as fallback |
+| `src/agent/prompts/*.txt` | Prompt templates (never inline) |
+| `src/observability/tracer.py`, `opik_sync.py` | Opt-in Opik tracing and prompt seeding |
+| `src/evaluation/` | Golden dataset, metrics (`metrics.py`), runner (`evaluator.py`) |
 | `scripts/` | Data download, sampling, golden-set builder, Opik launcher |
-| `evaluation/` | Golden dataset, metrics, runner |
 | `public/index.html` | Chat page |
 
 ## Design decisions
