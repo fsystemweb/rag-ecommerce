@@ -17,20 +17,20 @@ pip install -r requirements-dev.txt
 cp .env.example .env                 # set NEBIUS_API_KEY
 python -m scripts.download_data
 python -m scripts.sample_catalog --size 10000
-python -m app.ingestion              # shows a cost estimate and asks to confirm
-python -m app.main                   # API
+python -m src.ingestion              # shows a cost estimate and asks to confirm
+python main.py                   # API
 python -m http.server 5500           # chat page: http://localhost:5500/public/
 scripts/opik.sh up                   # optional: Opik on :5173
-python -m evaluation.run --retrieval-only   # evaluation (paid embeddings)
+python -m src.evaluation.evaluator --retrieval-only   # evaluation (paid embeddings)
 npx docsify-cli serve docs           # these docs
 ```
 
-To try without any API key: `python -m evaluation.run --search bm25 --retrieval-only` needs only the catalog.
+To try without any API key: `python -m src.evaluation.evaluator --search bm25 --retrieval-only` needs only the catalog.
 
 ## Troubleshooting
 
 - **503 "NEBIUS_API_KEY is not set"**: fill `.env`.
-- **503 "vector store is empty"**: run `python -m app.ingestion`.
-- **`ModuleNotFoundError: app`**: run modules from the repo root with `python -m`.
+- **503 "vector store is empty"**: run `python -m src.ingestion`.
+- **`ModuleNotFoundError: src`**: run modules from the repo root with `python -m`.
 - **Chat page says "Failed to fetch"**: the API is not running on port 8000.
 - **Ingestion stopped halfway**: run it again, finished products are skipped.

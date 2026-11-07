@@ -1,9 +1,9 @@
 """Run the golden dataset through the real pipeline and report the metrics.
 
 Usage:
-  python -m evaluation.run --retrieval-only              # embeddings only (cheap)
-  python -m evaluation.run --search bm25 --retrieval-only  # no API calls at all
-  python -m evaluation.run [--k 5] [--limit N] [--search hybrid|dense|bm25] [--rerank]
+  python -m src.evaluation.evaluator --retrieval-only              # embeddings only (cheap)
+  python -m src.evaluation.evaluator --search bm25 --retrieval-only  # no API calls at all
+  python -m src.evaluation.evaluator [--k 5] [--limit N] [--search hybrid|dense|bm25] [--rerank]
                            [--generator MODEL] [--floor recall@5=0.4]
 
 Without --retrieval-only this makes paid Nebius calls. With OPIK_URL_OVERRIDE set,
@@ -16,14 +16,17 @@ import sys
 from collections import defaultdict
 from statistics import mean
 
-from app import config, guardrails, observability
-from app.chains import Pipeline
-from app.ingestion import get_store, load_catalog, split
-from app.llm import make_llm
-from app.models import AskRequest, Turn
-from app.retriever import Retriever
-from evaluation import metrics
-from evaluation.dataset import DATASET_NAME, load_golden
+from src.agent import guardrails
+from src.agent.rag_agent import Pipeline
+from src.agent.retriever import Retriever
+from src.core import config
+from src.core.llm import make_llm
+from src.core.models import AskRequest, Turn
+from src.evaluation import metrics
+from src.evaluation.dataset import DATASET_NAME, load_golden
+from src.ingestion.chunker import to_chunk
+from src.ingestion.index import get_store, load_catalog
+from src.observability import tracer as observability
 
 RETRIEVAL_KEYS = ["precision@5", "recall@5", "precision@10", "recall@10"]
 GENERATION_KEYS = ["product_precision", "product_recall", "refusal_accuracy"]
@@ -33,7 +36,7 @@ class CatalogStore:
     """Minimal store for BM25-only runs: reads the chunks from the catalog, no embeddings."""
 
     def get(self, include=None):
-        docs = [c for _, row in load_catalog().iterrows() for c in split(row)]
+        docs = [to_chunk(row) for _, row in load_catalog().iterrows()]
         return {"ids": [d.id for d in docs], "documents": [d.page_content for d in docs], "metadatas": [d.metadata for d in docs]}
 
 
@@ -148,8 +151,8 @@ def main(argv=None):
     table = aggregate(rows)
     print(f"\nexperiment: {name}  items: {len(items)}")
     print_table(table, keys)
-    (config.ROOT / "evaluation" / "results").mkdir(exist_ok=True)
-    (config.ROOT / "evaluation" / "results" / f"{name}.json").write_text(json.dumps(table, indent=2))
+    (config.ROOT / "src" / "evaluation" / "results").mkdir(exist_ok=True)
+    (config.ROOT / "src" / "evaluation" / "results" / f"{name}.json").write_text(json.dumps(table, indent=2))
     failed = check_floors(table, args.floor)
     if failed:
         print("FAILED floors:", *failed, sep="\n  ")

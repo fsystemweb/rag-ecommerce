@@ -2,8 +2,8 @@
 
 import logging
 
-from app import observability
-from app.prompt_loader import PROMPT_FILES, PROMPTS_DIR
+from src.agent.prompt_loader import PROMPT_FILES, PROMPTS_DIR
+from src.observability import tracer as observability
 
 log = logging.getLogger("rag")
 

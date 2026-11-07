@@ -11,11 +11,13 @@ import json
 import logging
 import re
 
-from app import config, guardrails, observability
-from app.llm import make_llm
-from app.models import AskRequest, AskResponse, ProductRef
-from app.observability import track
-from app.prompt_loader import VERSIONS, load_prompt, render
+from src.agent import guardrails
+from src.agent.prompt_loader import VERSIONS, load_prompt, render
+from src.core import config
+from src.core.llm import make_llm
+from src.core.models import AskRequest, AskResponse, ProductRef
+from src.observability import tracer as observability
+from src.observability.tracer import track
 
 log = logging.getLogger("rag")
 HISTORY_TURNS = 6  # last turns used for the rewrite
