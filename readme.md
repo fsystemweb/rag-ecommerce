@@ -23,7 +23,7 @@ Try it: `curl -X POST localhost:8000/ask -H 'content-type: application/json' -d 
 
 ## Learn more
 
-Full docs (overview, data, architecture, evaluation, FAQ): see [`docs/`](docs/) — `npx docsify-cli serve docs`.
+Full docs: https://fsystemweb.github.io/rag-ecommerce/ (sources in [`docs/`](docs/), `npx docsify-cli serve docs`).
 Contributor rules: [`AGENTS.md`](AGENTS.md). Tests: `pytest`.
 
 ## Observability (optional)
