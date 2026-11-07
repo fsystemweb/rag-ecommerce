@@ -105,7 +105,6 @@ async function ask(question) {
         const e = JSON.parse(part.slice(6));
         if (e.type === "status") li.textContent = text || e.step + "…";
         else if (e.type === "token") { text += e.text; li.className = "msg bot"; li.textContent = text; }
-        else if (e.type === "reset") { text = ""; li.className = "msg bot status"; li.textContent = "Comprobando la respuesta…"; }
         else if (e.type === "final") final = e.response;
       }
     }

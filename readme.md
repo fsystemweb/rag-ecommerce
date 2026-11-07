@@ -5,16 +5,16 @@
 [![CI](https://github.com/fsystemweb/rag-ecommerce/actions/workflows/ci.yml/badge.svg)](https://github.com/fsystemweb/rag-ecommerce/actions/workflows/ci.yml)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-009688) ![LangChain](https://img.shields.io/badge/LangChain-1c3c3c) ![Nebius](https://img.shields.io/badge/Nebius%20AI%20Studio-LLM-0b5fff)
 
-An educational **product search assistant** built with RAG: it answers only from a catalog of thousands of Spanish-language products (Amazon ESCI), cites the products it recommends, checks its own answer with an LLM judge, and is measured with a labeled golden dataset.
+An educational **product search assistant** built with RAG: it answers only from a catalog of thousands of Spanish-language products (Amazon ESCI), cites the products it recommends, and is measured with a labeled golden dataset.
 
 ⚠️ Educational project, not production-ready. Using it calls the Nebius AI Studio API and costs a little money (ingestion, each question, evaluation).
 
 ## Features
 
-- **Hybrid search:** embeddings (Chroma) plus BM25, merged with Reciprocal Rank Fusion, then reranked by an LLM.
+- **Hybrid search:** embeddings (Chroma) plus BM25, merged with Reciprocal Rank Fusion.
 - **Grounded answers:** the answer only uses retrieved products and names them.
-- **Grounding judge:** a light model checks every claim; low scores trigger up to 3 retries, then a refusal.
-- **Guardrails:** input checks and prompt-injection rules; it refuses price, stock and delivery questions.
+- **Guardrails:** input checks, prompt-injection rules and a light topic classifier; it refuses price, stock and delivery questions.
+- **No match:** when nothing in the catalog fits, it says so with a fixed message.
 - **Streaming API:** `/ask` and `/ask/stream`, plus a one-page chat UI.
 - **Evaluation and tracing:** a labeled golden dataset with offline metrics and optional Opik traces.
 
@@ -22,10 +22,11 @@ An educational **product search assistant** built with RAG: it answers only from
 
 ```mermaid
 flowchart LR
-  Q[question] --> R[rewrite] --> H[hybrid retrieval + rerank] --> G[generate] --> J{judge}
-  J -- ok --> A[answer + products]
-  J -- low score --> G
-  J -- still bad --> X[refusal]
+  Q[question] --> C{classify} -- product search --> R[rewrite] --> H[hybrid retrieval] --> G[generate]
+  C -- off topic --> X[refusal]
+  H -- nothing found --> N[no match message]
+  G -- NO_ANSWER --> N
+  G -- ok --> A[answer + products]
 ```
 
 ## Requirements
@@ -85,15 +86,15 @@ Contributor rules: [`AGENTS.md`](AGENTS.md). Tests: `pytest`.
 
 ## Observability (optional)
 
-[Comet Opik](https://github.com/comet-ml/opik) shows every question as a trace (rewrite, retrieval, generation, judge, retries) and can hold the prompts. It needs Docker.
+[Comet Opik](https://github.com/comet-ml/opik) shows every question as a trace (classify, rewrite, retrieval, generation) and can hold the prompts. It needs Docker.
 
 ```bash
 scripts/opik.sh up                  # UI on http://localhost:5173
 # in .env: OPIK_URL_OVERRIDE=http://localhost:5173/api
 ```
 
-Without `OPIK_URL_OVERRIDE` nothing changes. Prompts are read from Opik first (names `rag-ecommerce-generator|judge|rewriter`) and fall back to `src/agent/prompts/*.txt`.
+Without `OPIK_URL_OVERRIDE` nothing changes. Prompts are read from Opik first (names `rag-ecommerce-generator|classifier|rewriter`) and fall back to `src/agent/prompts/*.txt`.
 
 ## Cost
 
-Each question calls Nebius up to 3 × (generator + judge) times, with 5 products in each prompt. Ingestion and evaluation also cost money.
+Each question calls Nebius 2 to 3 times (classifier, rewriter only for follow-ups, generator) plus one embedding, with 5 products in the prompt. Ingestion and evaluation also cost money.

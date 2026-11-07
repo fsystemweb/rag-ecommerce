@@ -21,13 +21,6 @@ PRODUCTS = [
 
 
 @pytest.fixture(autouse=True)
-def fake_rerank(monkeypatch):
-    """The retriever reranks with an LLM; offline we keep the order unchanged."""
-    order = AIMessage(content=",".join(str(i) for i in range(20)))
-    monkeypatch.setattr("src.agent.retriever.make_llm", lambda *a, **k: GenericFakeChatModel(messages=iter([order] * 50)))
-
-
-@pytest.fixture(autouse=True)
 def fake_classifier(monkeypatch):
     """The pipeline classifies the topic with an LLM; offline every question is a product search."""
     ok = AIMessage(content="PRODUCT_SEARCH")

@@ -26,4 +26,4 @@ curl -X POST localhost:8000/ask -H 'content-type: application/json' \
 
 ## Limits
 
-The data has **no prices, stock or store policies**. Questions about them, and anything that is not product search, get a fixed refusal with `products: []`.
+The data has **no prices, stock or store policies**. Questions about them, and anything that is not product search, get a fixed refusal with `products: []`. If nothing in the catalog matches, the answer is a fixed "no match" message, also with `products: []`.

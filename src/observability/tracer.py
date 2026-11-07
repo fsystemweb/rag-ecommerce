@@ -30,7 +30,7 @@ def llm_config() -> dict:
 
 
 def tag_trace(tags: list[str], metadata: dict):
-    """Add filterable tags (grounded, attempts, prompt versions) to the current trace."""
+    """Add tags and metadata (prompt versions) to the current trace."""
     if not ENABLED:
         return
     try:

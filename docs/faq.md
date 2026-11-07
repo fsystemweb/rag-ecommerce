@@ -2,8 +2,6 @@
 
 **Why not put the whole catalog in the prompt?** 10,000 products are millions of tokens: too slow, costly and above model limits.
 
-**Why a second model as judge?** The generator tends to trust its own text. A separate, cheap check against the source products catches invented details.
-
 **Why at least 5 chunks?** One hit is fragile; five distinct products allow comparison and make recall measurable.
 
 **How do I change a prompt?** Edit it in Opik and restart the API (source `opik`), or edit `src/agent/prompts/*.txt`. Re-run the evaluation afterwards.

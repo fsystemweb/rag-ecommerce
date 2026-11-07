@@ -56,7 +56,7 @@ def ask(req: AskRequest, pipeline=Depends(get_pipeline)) -> AskResponse:
 
 @app.post("/ask/stream")
 def ask_stream(req: AskRequest, pipeline=Depends(get_pipeline)):
-    """Server-Sent Events: status, token, reset and final events."""
+    """Server-Sent Events: status, token and final events."""
 
     def events():
         for e in pipeline.run(req):

@@ -1,10 +1,10 @@
 """Run the golden dataset through the real pipeline and report the metrics.
 
 Usage:
-  python -m src.evaluation.evaluator --retrieval-only   # embeddings + rerank only (cheaper)
+  python -m src.evaluation.evaluator --retrieval-only   # embeddings only (cheaper)
   python -m src.evaluation.evaluator [--k 5] [--limit N] [--generator MODEL] [--floor recall@5=0.4]
 
-Both modes make paid Nebius calls (without --retrieval-only, also generation and judge). With OPIK_URL_OVERRIDE set,
+Both modes make paid Nebius calls (without --retrieval-only, also classifier, rewrite and generation). With OPIK_URL_OVERRIDE set,
 the run is also logged as an Opik experiment. Exit code 1 if a --floor is not met.
 """
 
@@ -50,7 +50,7 @@ def run_item(item, retriever, pipeline, retrieval_only):
 
     history = [Turn(**t) for t in item["history"]]
     resp = pipeline.ask(AskRequest(question=item["input"], history=history))
-    refused = resp.answer == guardrails.REFUSAL
+    refused = resp.answer in (guardrails.REFUSAL, guardrails.NO_MATCH)
     scores["refusal_accuracy"] = metrics.refusal_accuracy(refused, item["answerable"])
     if item["answerable"]:
         answer_ids = [p.product_id for p in resp.products]
@@ -99,10 +99,10 @@ def main(argv=None):
     config.RETRIEVAL_K = args.k
 
     retriever = Retriever(get_store())
-    pipeline = None if args.retrieval_only else Pipeline(retriever, make_llm(args.generator), make_llm(config.EVALUATOR_LLM))
+    pipeline = None if args.retrieval_only else Pipeline(retriever, make_llm(args.generator))
     items = load_golden()[: args.limit]
     keys = RETRIEVAL_KEYS if args.retrieval_only else RETRIEVAL_KEYS + GENERATION_KEYS
-    name = f"hybrid-rerank-k{args.k}-{'retrieval' if args.retrieval_only else args.generator}"
+    name = f"hybrid-k{args.k}-{'retrieval' if args.retrieval_only else args.generator}"
 
     rows = []
 
@@ -123,7 +123,7 @@ def main(argv=None):
             experiment_name=name,
             task_threads=1,
             experiment_config={
-                "search": "hybrid-rerank",
+                "search": "hybrid",
                 "k": args.k,
                 "generator": args.generator,
                 "retrieval_only": args.retrieval_only,

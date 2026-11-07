@@ -1,11 +1,8 @@
-"""Input checks, prompt-injection rules and the constants that control retries."""
+"""Input checks, prompt-injection rules and the fixed answers."""
 
 import re
 
-# One place for the numbers (changing them needs approval, see AGENTS.md)
 MAX_QUESTION_CHARS = 500
-MIN_JUDGE_SCORE = 3
-MAX_ATTEMPTS = 3
 CANARY = "CANARY-7f3a91"  # hidden in the system prompt; if it shows up in an answer, it leaked
 
 REFUSAL = (
@@ -13,6 +10,8 @@ REFUSAL = (
     "No tengo información sobre precios, stock, envíos o devoluciones. "
     "¿Qué producto buscas?"
 )
+
+NO_MATCH = "No encontré ningún producto del catálogo que coincida con tu búsqueda. Prueba con otras palabras o con otra marca."
 
 INJECTION_PATTERNS = [
     r"ignor(e|a)\s+(all\s+|todas\s+|todo\s+)?(the\s+|las\s+|tus\s+|your\s+)?(previous|above|prior|anteriores|instrucciones|instructions)",
@@ -46,5 +45,5 @@ def sanitize_product_text(text: str) -> str:
 
 def is_off_topic(reply: str) -> bool:
     """The topic classifier must answer OFF_TOPIC to block. Anything else lets the question through
-    (fail open: the generator rules and the judge are still behind it)."""
+    (fail open: the generator rules are still behind it)."""
     return "OFF_TOPIC" in reply.upper()
