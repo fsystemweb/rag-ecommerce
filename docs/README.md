@@ -1,3 +1,5 @@
+<img src="assets/logo.svg" alt="rag-ecommerce logo" width="96">
+
 # rag-ecommerce
 
 A **product search and recommendation assistant**. You ask for what you need ("una funda negra para iPhone 13") and it answers **only from a catalog** of thousands of Spanish-language Amazon products, naming the products it recommends.
