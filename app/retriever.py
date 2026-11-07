@@ -12,6 +12,7 @@ from rank_bm25 import BM25Okapi
 
 from app import config
 from app.observability import track
+from app.prompt_loader import load_prompt, render
 
 POOL = 20  # candidates taken from each side before fusing
 RRF_C = 60  # standard RRF constant
@@ -108,7 +109,8 @@ class Retriever:
         from langchain_openai import ChatOpenAI
 
         listing = "\n".join(f"{i}. {c.metadata['title']}" for i, c in enumerate(chunks))
-        msg = f"Query: {query}\nOrder these products from most to least relevant. Reply only with the numbers, comma separated.\n{listing}"
+        template, _ = load_prompt("rag-ecommerce-rerank", "rerank_prompt.txt")
+        msg = render(template, query=query, listing=listing)
         reply = ChatOpenAI(model=config.GENERATOR_LLM, temperature=0).invoke(msg).content
         order = [int(n) for n in re.findall(r"\d+", reply) if int(n) < len(chunks)]
         order += [i for i in range(len(chunks)) if i not in order]

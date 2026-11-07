@@ -43,3 +43,13 @@ def test_metadata_filter(store, monkeypatch):
     monkeypatch.setattr(config, "RETRIEVAL_MIN_SCORE", -1.0)
     res = Retriever(store).retrieve("negro", k=5, where={"color": "Negro"})
     assert res and all(c.metadata["color"] == "Negro" for c in res)
+
+
+def test_config_rejects_k_below_5(monkeypatch):
+    import importlib
+
+    monkeypatch.setenv("RETRIEVAL_K", "3")
+    with pytest.raises(ValueError):
+        importlib.reload(config)
+    monkeypatch.setenv("RETRIEVAL_K", "5")
+    importlib.reload(config)

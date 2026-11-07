@@ -1,5 +1,7 @@
 # rag-ecommerce
 
+[![CI](https://github.com/fsystemweb/rag-ecommerce/actions/workflows/ci.yml/badge.svg)](https://github.com/fsystemweb/rag-ecommerce/actions/workflows/ci.yml)
+
 An educational **product search assistant** built with RAG: it answers only from a catalog of thousands of Spanish-language products (Amazon ESCI), cites the products it recommends, checks its own answer with an LLM judge, and is measured with a labeled golden dataset.
 
 ⚠️ Educational project, not production-ready. Using it calls the OpenAI API and costs a little money (ingestion, each question, evaluation).

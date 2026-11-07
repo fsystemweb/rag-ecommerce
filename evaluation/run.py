@@ -77,7 +77,9 @@ def run_item(item, retriever, pipeline, retrieval_only):
 
 def correctness(pipeline, item, answer):
     template, _ = load_prompt("rag-ecommerce-correctness", "correctness_prompt.txt")
-    reply = pipeline.judge.invoke(render(template, question=item["input"], expected=item["expected_output"], answer=answer)).content
+    reply = pipeline.judge.invoke(
+        render(template, question=item["input"], expected=item["expected_output"], answer=answer)
+    ).content
     match = re.search(r'"score"\s*:\s*([01])', reply)
     return float(match.group(1)) if match else 0.0
 
@@ -143,9 +145,18 @@ def main(argv=None):
         from opik.evaluation import evaluate
 
         evaluate(
-            dataset=client.get_dataset(DATASET_NAME), task=task, scoring_metrics=metrics.opik_metrics(keys),
-            experiment_name=name, task_threads=1,
-            experiment_config={"search": args.search, "k": args.k, "rerank": args.rerank, "generator": args.generator, "retrieval_only": args.retrieval_only},
+            dataset=client.get_dataset(DATASET_NAME),
+            task=task,
+            scoring_metrics=metrics.opik_metrics(keys),
+            experiment_name=name,
+            task_threads=1,
+            experiment_config={
+                "search": args.search,
+                "k": args.k,
+                "rerank": args.rerank,
+                "generator": args.generator,
+                "retrieval_only": args.retrieval_only,
+            },
         )
     else:
         for item in items:
