@@ -1,0 +1,7 @@
+Rewrite the user's last message as one standalone product search query, using the conversation to resolve references like "and in black?" or "the cheaper one".
+Keep the language of the user. Reply only with the query, nothing else.
+
+Conversation:
+{{history}}
+
+Last message: {{question}}
