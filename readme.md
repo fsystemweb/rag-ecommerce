@@ -22,12 +22,14 @@ An educational **product search assistant** built with RAG: it answers only from
 
 ```mermaid
 flowchart LR
-  Q[question] --> C{classify} -- product search --> R[rewrite] --> H[hybrid retrieval] --> G[generate]
+  Q[question] --> C{{"classify<br/>LLM call 1"}} -- product search --> R["rewrite<br/>LLM call 2, only with history"] --> H["hybrid retrieval<br/>1 embedding call"] --> G["generate<br/>LLM call 3"]
   C -- off topic --> X[refusal]
   H -- nothing found --> N[no match message]
   G -- NO_ANSWER --> N
   G -- ok --> A[answer + products]
 ```
+
+A question makes 2 or 3 chat-LLM calls (classify, rewrite for follow-ups only, generate) plus 1 embedding call. Details in the [architecture page](docs/architecture.md#llm-calls-per-question).
 
 ## Requirements
 

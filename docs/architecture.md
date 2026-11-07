@@ -8,9 +8,9 @@ flowchart LR
   subgraph Online
     Q[question] --> IG{input guardrails}
     IG -- blocked --> REF[refusal]
-    IG -- ok --> TC{topic classifier}
+    IG -- ok --> TC{{"topic classifier<br/>LLM call 1 (light)"}}
     TC -- off topic --> REF
-    TC -- product search --> R[rewrite] --> H[hybrid retrieval k>=5] --> G[generate] --> OG{output guardrails}
+    TC -- product search --> R["rewrite<br/>LLM call 2 (only with history)"] --> H["hybrid retrieval k>=5<br/>1 embedding call"] --> G["generate<br/>LLM call 3 (main model)"] --> OG{output guardrails}
     H -- nothing found --> NM[no match message]
     OG -- NO_ANSWER --> NM
     OG -- prompt leak --> REF
@@ -18,6 +18,29 @@ flowchart LR
   end
   F --> H
 ```
+
+Boxes with an "LLM call" label are the only chat-model calls. Everything else (regex guardrails, BM25, rank fusion, output checks) is plain Python.
+
+## LLM calls per question
+
+A question makes **2 or 3 chat-LLM calls**, plus **1 embedding call**.
+
+| # | Step | Model | When | Purpose |
+|---|---|---|---|---|
+| 1 | Topic classifier | `EVALUATOR_LLM` (light) | Every question that passes the regex guardrails | Answers `PRODUCT_SEARCH` or `OFF_TOPIC`; off-topic questions stop here. |
+| 2 | Rewrite | `GENERATOR_LLM` | Only when the request has chat history | Turns a follow-up ("¿y en negro?") into a standalone search query. |
+| - | Query embedding | embeddings model | Every question that reaches retrieval | Dense half of the hybrid search (an embedding call, not a chat call). |
+| 3 | Generate | `GENERATOR_LLM` | Every question that reaches it (streamed) | Writes the answer from the 5 retrieved products, or replies `NO_ANSWER`. |
+
+| Case | Chat calls |
+|---|---|
+| First question, no history | 2 (classify, generate) |
+| Follow-up question | 3 (classify, rewrite, generate) |
+| Off-topic question | 1 (classify) |
+| Nothing found in the catalog | 1 or 2 (classify, rewrite if history); generation is skipped |
+| Blocked by the regex guardrails (empty, injection) | 0 |
+
+There is no LLM rerank and no judge (see [design decisions](#design-decisions)).
 
 ## Files
 
