@@ -12,8 +12,8 @@ import logging
 import re
 
 from app import config, guardrails, observability
-from app.observability import track
 from app.models import AskRequest, AskResponse, ProductRef
+from app.observability import track
 from app.prompt_loader import VERSIONS, load_prompt, render
 
 log = logging.getLogger("rag")
@@ -71,7 +71,9 @@ class Pipeline:
     @track("judge", type="llm")
     def judge_answer(self, question, context, answer) -> dict:
         template, _ = load_prompt("rag-ecommerce-judge", "judge_prompt.txt")
-        reply = self.judge.invoke(render(template, question=question, context=context, answer=answer), config=observability.llm_config()).content
+        reply = self.judge.invoke(
+            render(template, question=question, context=context, answer=answer), config=observability.llm_config()
+        ).content
         return parse_judge(reply)
 
     # --- main flow ---------------------------------------------------
@@ -113,7 +115,11 @@ class Pipeline:
                 yield self._final(AskResponse(answer=answer, products=products, grounded=True, attempts=attempt))
                 return
             log.warning("retry %d: score=%s claims=%s", attempt, verdict["score"], verdict["unsupported_claims"])
-            feedback = "\nThe previous answer had unsupported claims, do not repeat them: " + "; ".join(verdict["unsupported_claims"]) + "\n"
+            feedback = (
+                "\nThe previous answer had unsupported claims, do not repeat them: "
+                + "; ".join(verdict["unsupported_claims"])
+                + "\n"
+            )
             yield {"type": "reset"}
 
         yield self._final(refusal.model_copy(update={"grounded": False, "attempts": guardrails.MAX_ATTEMPTS}))

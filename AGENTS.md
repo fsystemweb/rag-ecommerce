@@ -9,7 +9,7 @@
 - API: `python -m app.main` (port 8000)
 - Chat page: `python -m http.server 5500`, open `http://localhost:5500/public/`
 - Tests (offline, free): `pytest` and `python -m evaluation.test_metrics`
-- Lint: `ruff check . && ruff format --check .`
+- Lint: `ruff check . && ruff format --check .` (CI runs the same plus `pytest`)
 - Docs: `npx docsify-cli serve docs`
 
 ## Conventions

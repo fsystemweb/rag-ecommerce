@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asistente de productos</title>
+<style>
+  :root { --bg:#f7f7f8; --fg:#1d1d1f; --card:#fff; --accent:#0b5fff; --muted:#5f6368; --border:#d9dbe0; --warn:#8a5a00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#16171a; --fg:#ececf0; --card:#202226; --accent:#7aa5ff; --muted:#a0a4ad; --border:#33363c; --warn:#f0c36d; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--fg); }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; display:flex; flex-direction:column; min-height:100vh; }
+  h1 { font-size: 1.25rem; margin: 0 0 8px; }
+  #chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .chip { border:1px solid var(--border); background:var(--card); color:var(--fg); border-radius:999px; padding:6px 12px; cursor:pointer; font:inherit; }
+  .chip:hover, .chip:focus-visible { border-color:var(--accent); outline:2px solid var(--accent); outline-offset:1px; }
+  #log { flex:1; display:flex; flex-direction:column; gap:12px; padding:0; margin:0 0 12px; list-style:none; }
+  .msg { padding:10px 14px; border-radius:12px; max-width:90%; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .user { align-self:flex-end; background:var(--accent); color:#fff; }
+  .bot { align-self:flex-start; background:var(--card); border:1px solid var(--border); }
+  .status { color:var(--muted); font-size:.85rem; }
+  .warn { color:var(--warn); font-size:.9rem; margin-top:6px; }
+  .cards { display:grid; gap:8px; margin-top:10px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .card { border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:var(--bg); white-space:normal; }
+  .card b { display:block; }
+  .card small { color:var(--muted); }
+  form { display:flex; gap:8px; position:sticky; bottom:0; background:var(--bg); padding:8px 0; }
+  input { flex:1; padding:10px 12px; font:inherit; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--fg); min-width:0; }
+  button.send { padding:10px 16px; font:inherit; border:0; border-radius:10px; background:var(--accent); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.6; cursor:wait; }
+  .sr { position:absolute; left:-9999px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Asistente de productos</h1>
+  <div id="chips" role="group" aria-label="Ejemplos"></div>
+  <ol id="log" aria-live="polite" aria-label="Conversación"></ol>
+  <form id="form">
+    <label class="sr" for="q">Tu pregunta</label>
+    <input id="q" autocomplete="off" maxlength="500" placeholder="Busca un producto, por ejemplo: auriculares para correr" required>
+    <button class="send" id="send">Enviar</button>
+  </form>
+</main>
+<script>
+const API = "http://localhost:8000";
+const EXAMPLES = ["tablet samsung galaxy tab a", "funda negra para iphone 13", "champú sin sulfatos", "¿Cuánto cuesta el envío?"];
+const log = document.getElementById("log"), form = document.getElementById("form"),
+      input = document.getElementById("q"), send = document.getElementById("send");
+let history = []; // [{role, content}], last turns are sent with each request
+
+for (const text of EXAMPLES) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = text;
+  b.onclick = () => { input.value = text; form.requestSubmit(); };
+  document.getElementById("chips").append(b);
+}
+
+function addMsg(cls, text) {
+  const li = document.createElement("li");
+  li.className = "msg " + cls; li.textContent = text;
+  log.append(li); li.scrollIntoView({block: "end"});
+  return li;
+}
+
+function renderFinal(li, r) {
+  li.textContent = r.answer;
+  if (r.products.length) {
+    const cards = document.createElement("div"); cards.className = "cards";
+    for (const p of r.products) {
+      const c = document.createElement("div"); c.className = "card";
+      const t = document.createElement("b"); t.textContent = p.title;
+      const s = document.createElement("small"); s.textContent = [p.brand, p.product_id].filter(Boolean).join(" · ");
+      c.append(t, s); cards.append(c);
+    }
+    li.append(cards);
+  }
+  if (!r.grounded) {
+    const w = document.createElement("div"); w.className = "warn";
+    w.textContent = "No pude comprobar que la respuesta esté respaldada por el catálogo.";
+    li.append(w);
+  }
+}
+
+async function ask(question) {
+  addMsg("user", question);
+  const li = addMsg("bot status", "…");
+  let text = "";
+  try {
+    const res = await fetch(API + "/ask/stream", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({question, history: history.slice(-6)}),
+    });
+    if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+    const reader = res.body.getReader(), decoder = new TextDecoder();
+    let buffer = "", final = null;
+    while (true) {
+      const {value, done} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const parts = buffer.split("\n\n"); buffer = parts.pop();
+      for (const part of parts) {
+        if (!part.startsWith("data: ")) continue;
+        const e = JSON.parse(part.slice(6));
+        if (e.type === "status") li.textContent = text || e.step + "…";
+        else if (e.type === "token") { text += e.text; li.className = "msg bot"; li.textContent = text; }
+        else if (e.type === "reset") { text = ""; li.className = "msg bot status"; li.textContent = "Comprobando la respuesta…"; }
+        else if (e.type === "final") final = e.response;
+      }
+    }
+    li.className = "msg bot";
+    if (final) { renderFinal(li, final); history.push({role: "user", content: question}, {role: "assistant", content: final.answer}); }
+  } catch (err) {
+    li.className = "msg bot"; li.textContent = "Error: " + err.message;
+  }
+}
+
+form.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const q = input.value.trim(); if (!q) return;
+  input.value = ""; send.disabled = input.disabled = true;
+  await ask(q);
+  send.disabled = input.disabled = false; input.focus();
+});
+</script>
+</body>
+</html>

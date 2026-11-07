@@ -11,6 +11,7 @@ from fastapi.responses import StreamingResponse
 from app import config
 from app.models import AskRequest, AskResponse
 
+
 @asynccontextmanager
 async def lifespan(_):
     from app.opik_sync import seed_prompts
