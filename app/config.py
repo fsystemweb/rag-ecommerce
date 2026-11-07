@@ -14,10 +14,12 @@ def _path(name: str, default: str) -> Path:
     return p if p.is_absolute() else ROOT / p
 
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-GENERATOR_LLM = os.getenv("GENERATOR_LLM", "gpt-4o-mini")
-EVALUATOR_LLM = os.getenv("EVALUATOR_LLM", "gpt-4o-mini")
-EMBEDDINGS_MODEL = os.getenv("EMBEDDINGS_MODEL", "text-embedding-3-small")
+NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY", "")
+NEBIUS_API = os.getenv("NEBIUS_API", "https://api.studio.nebius.com/v1/")
+GENERATOR_LLM = os.getenv("GENERATOR_LLM", "meta-llama/Llama-3.3-70B-Instruct")
+EVALUATOR_LLM = os.getenv("EVALUATOR_LLM", "meta-llama/Meta-Llama-3.1-8B-Instruct")
+EMBEDDINGS_MODEL = os.getenv("EMBEDDINGS_MODEL", "BAAI/bge-multilingual-gemma2")
+EMBEDDINGS_PRICE_PER_1M = float(os.getenv("EMBEDDINGS_PRICE_PER_1M", "0.01"))  # USD, check Nebius pricing
 DATA_DIR = _path("DATA_DIR", "data")
 VECTOR_STORE_DIR = _path("VECTOR_STORE_DIR", "data/chroma")
 RETRIEVAL_K = int(os.getenv("RETRIEVAL_K", "5"))

@@ -36,8 +36,8 @@ def get_pipeline():
     from app.ingestion import get_store
     from app.retriever import Retriever
 
-    if not config.OPENAI_API_KEY:
-        raise HTTPException(503, "OPENAI_API_KEY is not set. Copy .env.example to .env and fill it.")
+    if not config.NEBIUS_API_KEY:
+        raise HTTPException(503, "NEBIUS_API_KEY is not set. Copy .env.example to .env and fill it.")
     store = get_store()
     if store._collection.count() == 0:
         raise HTTPException(503, "The vector store is empty. Run: python -m app.ingestion")

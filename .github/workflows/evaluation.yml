@@ -1,4 +1,4 @@
-# Manual only: this makes paid OpenAI calls. Never runs on pull requests.
+# Manual only: this makes paid Nebius calls. Never runs on pull requests.
 name: Evaluation (manual)
 on:
   workflow_dispatch:
@@ -16,4 +16,4 @@ jobs:
           python -m app.ingestion --yes
           python -m evaluation.run --retrieval-only --floor recall@5=0.4
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NEBIUS_API_KEY: ${{ secrets.NEBIUS_API_KEY }}

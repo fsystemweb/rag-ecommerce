@@ -6,7 +6,7 @@ Usage:
   python -m evaluation.run [--k 5] [--limit N] [--search hybrid|dense|bm25] [--rerank]
                            [--generator MODEL] [--floor recall@5=0.4]
 
-Without --retrieval-only this makes paid OpenAI calls. With OPIK_URL_OVERRIDE set,
+Without --retrieval-only this makes paid Nebius calls. With OPIK_URL_OVERRIDE set,
 the run is also logged as an Opik experiment. Exit code 1 if a --floor is not met.
 """
 
@@ -18,8 +18,9 @@ from collections import defaultdict
 from statistics import mean
 
 from app import config, guardrails, observability
-from app.chains import Pipeline, format_context, make_llm
+from app.chains import Pipeline, format_context
 from app.ingestion import get_store, load_catalog, split
+from app.llm import make_llm
 from app.models import AskRequest, Turn
 from app.prompt_loader import load_prompt, render
 from app.retriever import Retriever

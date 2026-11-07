@@ -12,18 +12,13 @@ import logging
 import re
 
 from app import config, guardrails, observability
+from app.llm import make_llm
 from app.models import AskRequest, AskResponse, ProductRef
 from app.observability import track
 from app.prompt_loader import VERSIONS, load_prompt, render
 
 log = logging.getLogger("rag")
 HISTORY_TURNS = 6  # last turns used for the rewrite
-
-
-def make_llm(model: str):
-    from langchain_openai import ChatOpenAI
-
-    return ChatOpenAI(model=model, temperature=0, timeout=30, max_retries=2)
 
 
 def format_context(chunks) -> str:

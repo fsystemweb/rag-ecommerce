@@ -1,9 +1,9 @@
 # AGENTS.md
 
-`rag-ecommerce` is an educational product-search assistant: FastAPI + LangChain + OpenAI over a sampled Spanish Amazon ESCI catalog (RAG with hybrid search, a grounding judge, Opik tracing and an offline evaluation). Not production-ready. Keep it simple: a student must be able to run it locally.
+`rag-ecommerce` is an educational product-search assistant: FastAPI + LangChain + Nebius AI Studio (OpenAI-compatible API) over a sampled Spanish Amazon ESCI catalog (RAG with hybrid search, a grounding judge, Opik tracing and an offline evaluation). Not production-ready. Keep it simple: a student must be able to run it locally.
 
 ## Commands
-- Setup: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements-dev.txt`, then `cp .env.example .env` and set `OPENAI_API_KEY`
+- Setup: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements-dev.txt`, then `cp .env.example .env` and set `NEBIUS_API_KEY`
 - Data (one time): `python -m scripts.download_data` then `python -m scripts.sample_catalog --size 10000`
 - Ingest (paid embeddings): `python -m app.ingestion [--limit N] [--yes]`
 - API: `python -m app.main` (port 8000)

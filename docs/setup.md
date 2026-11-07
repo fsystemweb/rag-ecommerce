@@ -3,7 +3,7 @@
 ## Requirements
 
 - Python 3.12
-- An **OpenAI API key**. Ingestion, every question and evaluation are **paid** calls (small, but not free)
+- A **Nebius AI Studio API key** (`NEBIUS_API_KEY`). Ingestion, every question and evaluation are **paid** calls (small, but not free)
 - Docker, only for Opik (optional)
 - Disk: ~1.2 GB for the dataset download
 
@@ -14,7 +14,7 @@ Ports: **8000** API, **5500** chat page, **5173** Opik.
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-cp .env.example .env                 # set OPENAI_API_KEY
+cp .env.example .env                 # set NEBIUS_API_KEY
 python -m scripts.download_data
 python -m scripts.sample_catalog --size 10000
 python -m app.ingestion              # shows a cost estimate and asks to confirm
@@ -25,11 +25,11 @@ python -m evaluation.run --retrieval-only   # evaluation (paid embeddings)
 npx docsify-cli serve docs           # these docs
 ```
 
-To try without OpenAI: `python -m evaluation.run --search bm25 --retrieval-only` needs only the catalog.
+To try without any API key: `python -m evaluation.run --search bm25 --retrieval-only` needs only the catalog.
 
 ## Troubleshooting
 
-- **503 "OPENAI_API_KEY is not set"**: fill `.env`.
+- **503 "NEBIUS_API_KEY is not set"**: fill `.env`.
 - **503 "vector store is empty"**: run `python -m app.ingestion`.
 - **`ModuleNotFoundError: app`**: run modules from the repo root with `python -m`.
 - **Chat page says "Failed to fetch"**: the API is not running on port 8000.

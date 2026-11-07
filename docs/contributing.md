@@ -4,7 +4,7 @@ Rules live in [`AGENTS.md`](https://github.com/fsystemweb/rag-ecommerce/blob/mai
 
 ## Cost and safety
 
-- Each question calls OpenAI up to **3 times** (generator + judge per attempt) with 5 products in the prompt.
+- Each question calls Nebius up to **3 times** (generator + judge per attempt) with 5 products in the prompt.
 - Ingestion (embeddings) and evaluation also cost money. Never run them in CI on pull requests.
 - Product text is treated as data, questions are checked for prompt injection, and the system prompt is protected by a canary check.
 - Educational project: not production-ready.
