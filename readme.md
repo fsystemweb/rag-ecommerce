@@ -1,67 +1,25 @@
-# RAG System for E-commerce: Setup and Usage Guide
+# rag-ecommerce
 
-A Retrieval-Augmented Generation (RAG) system implementation for e-commerce applications. This system enhances language model responses with relevant information retrieved from your product database.
+An educational **product search assistant** built with RAG: it answers only from a catalog of thousands of Spanish-language products (Amazon ESCI), cites the products it recommends, checks its own answer with an LLM judge, and is measured with a labeled golden dataset.
 
-⚠️ Disclaimer: This project is intended for educational purposes only and is not production-ready.
+⚠️ Educational project, not production-ready. Using it calls the OpenAI API and costs a little money (ingestion, each question, evaluation).
 
-**Example Application**: [Cafés 1808](https://www.cafes1808.com/)
-
-## Prerequisites
-
-Before you begin, ensure you have:
-- Python 3.12.3 or higher installed
-- pip package manager
-
-## Setup Instructions
-
-### Virtual Environment
-
-We recommend using a virtual environment to isolate dependencies:
+## Quick start
 
 ```bash
-# Create virtual environment
-python3 -m venv env
-
-# Activate environment (Linux/macOS)
-source env/bin/activate
-
-# Activate environment (Windows)
-.\env\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
+cp .env.example .env            # set OPENAI_API_KEY
+python -m scripts.download_data # ~1 GB, once
+python -m scripts.sample_catalog --size 10000
+python -m app.ingestion         # embeds the catalog (paid, asks to confirm)
+python -m app.main              # API on :8000
+python -m http.server 5500      # chat page: http://localhost:5500/public/
 ```
-### Add Your E-commerce Data
-To enable the RAG agent to provide accurate customer assistance, please add your product data following these guidelines:
 
-#### Data Collection Requirements
-Scrape or prepare all necessary product information including:
+Try it: `curl -X POST localhost:8000/ask -H 'content-type: application/json' -d '{"question":"auriculares inalámbricos para correr"}'`
 
- - How to Add Your Data
- - Locate the template in:
-    ```bash
-        data/raw-data/template.md
-    ```
+## Learn more
 
- - Save files in:
-     ```bash
-        data/
-    ```
-
-### Create `.env` File
-Create your **`.env` file** using `.env.example` as a template, and fill in your specific values.
-
-## Execution
-After adding your data.md file.
-
-1. Run the processing pipeline:
-   ```bash
-   python model_pipeline.py
-2. Start the query agent:
-   ```bash
-   python query_executor.py
-
-# Start Application
-   - From the root folder.
-   ```bash
-   PYTHONPATH=$(pwd) streamlit run src/ui/app.py
+Full docs (overview, data, architecture, evaluation, FAQ): see [`docs/`](docs/) — `npx docsify-cli serve docs`.
+Contributor rules: [`AGENTS.md`](AGENTS.md). Tests: `pytest`.
