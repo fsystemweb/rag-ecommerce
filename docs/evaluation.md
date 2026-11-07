@@ -28,14 +28,13 @@ Example: 5 results, the user wanted products A and B, we returned `[A, x, B, y, 
 
 Retrieval only, golden items that are answerable, 10,000-product catalog:
 
+The app uses a single retrieval: hybrid search (dense + BM25) with an LLM rerank.
+
 | Configuration | precision@5 | recall@5 | Status |
 |---|---|---|---|
-| BM25 only | 0.349 | 0.530 | **measured** (no API calls) |
-| dense only | - | - | needs Nebius key: `--search dense --retrieval-only` |
-| hybrid (default) | - | - | needs Nebius key: `--search hybrid --retrieval-only` |
-| hybrid + rerank | - | - | needs Nebius key: `--rerank` |
+| hybrid + rerank | - | - | needs Nebius key: `python -m src.evaluation.evaluator --retrieval-only` |
 
-Only BM25 could be run without an API key; the other rows are commands to fill in (the numbers are not invented). Generation metrics (product precision/recall, refusal accuracy) also need a key.
+The row is a command to fill in (the numbers are not invented). Generation metrics (product precision/recall, refusal accuracy) also need a key.
 
 ## Known limits
 

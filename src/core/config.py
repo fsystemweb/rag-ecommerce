@@ -24,7 +24,6 @@ DATA_DIR = _path("DATA_DIR", "data")
 VECTOR_STORE_DIR = _path("VECTOR_STORE_DIR", "data/chroma")
 RETRIEVAL_K = int(os.getenv("RETRIEVAL_K", "5"))
 RETRIEVAL_MIN_SCORE = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2"))
-RERANK = os.getenv("RERANK", "false").lower() == "true"
 OPIK_URL_OVERRIDE = os.getenv("OPIK_URL_OVERRIDE", "")
 OPIK_PROJECT_NAME = os.getenv("OPIK_PROJECT_NAME", "rag-ecommerce")
 
