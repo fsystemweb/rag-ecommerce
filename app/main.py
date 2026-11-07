@@ -1,6 +1,7 @@
 """FastAPI app. Run with: python -m app.main"""
 
 import json
+from contextlib import asynccontextmanager
 from functools import lru_cache
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -10,7 +11,15 @@ from fastapi.responses import StreamingResponse
 from app import config
 from app.models import AskRequest, AskResponse
 
-app = FastAPI(title="rag-ecommerce")
+@asynccontextmanager
+async def lifespan(_):
+    from app.opik_sync import seed_prompts
+
+    seed_prompts()  # no-op without Opik
+    yield
+
+
+app = FastAPI(title="rag-ecommerce", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5500", "http://127.0.0.1:5500"],
