@@ -6,6 +6,7 @@
 - **Vector store**: database of embeddings (Chroma here).
 - **Hybrid search**: embeddings search plus keyword search, merged.
 - **BM25**: classic keyword ranking by term frequency.
+- **RRF (Reciprocal Rank Fusion)**: merges ranked lists by summing `1 / (60 + rank)`; see [how hybrid search works](architecture.md#how-hybrid-search-works).
 - **Grounding**: every claim in the answer comes from the retrieved data.
 - **Hallucination**: the model states something not supported by the data.
 - **Golden dataset**: fixed questions with known good answers, used to measure.

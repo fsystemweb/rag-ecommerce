@@ -42,6 +42,44 @@ A question makes **2 or 3 chat-LLM calls**, plus **1 embedding call**.
 
 There is no LLM rerank and no judge (see [design decisions](#design-decisions)).
 
+## How hybrid search works
+
+Code: `src/agent/retriever.py`. Each question is searched **twice**, and the two result lists are merged into one.
+
+```mermaid
+flowchart LR
+  Q[query] --> D["dense (semantic)<br/>embedding + Chroma<br/>top 20"]
+  Q --> B["BM25 (keywords)<br/>in memory<br/>top 20"]
+  D --> F["RRF fusion<br/>sum of 1/(60 + rank)"]
+  B --> F
+  F --> K["top k >= 5<br/>distinct products"]
+```
+
+1. **Dense (semantic) search.** The query is embedded (the one embedding call) and Chroma returns the 20 closest products by cosine similarity. It understands meaning ("auriculares inalámbricos" ~ "cascos bluetooth") but can miss exact terms such as brands, model numbers or sizes.
+2. **BM25 (keyword) search.** The same query is tokenized (lowercase, accents removed, numbers and units kept: `500ml`) and scored against every product text in memory. It finds exact terms but knows nothing about synonyms. Products with a score of 0 are dropped.
+3. **Fusion with Reciprocal Rank Fusion (RRF).** The two scores are not comparable (cosine similarity vs. BM25), so RRF ignores scores and uses only the **rank** in each list:
+
+   `fused score = 1 / (60 + dense_rank) + 1 / (60 + bm25_rank)`
+
+   A product missing from one list just gets nothing from that side. The constant 60 is the usual RRF value; it keeps the first places from dominating. Products are sorted by fused score, so a product that appears in **both** lists beats one that is first in only one of them.
+4. **Result.** One chunk per product, the first `k` (at least 5).
+
+Example (each product appears in the lists at these ranks):
+
+| Product | Dense rank | BM25 rank | Fused score | Final position |
+|---|---|---|---|---|
+| A | 1 | 3 | 1/61 + 1/63 = 0.0323 | 1 |
+| D | 5 | 2 | 1/65 + 1/62 = 0.0315 | 2 |
+| C | - | 1 | 1/61 = 0.0164 | 3 |
+| B | 2 | - | 1/62 = 0.0161 | 4 |
+
+Extra rules:
+
+- **Relevance gate.** If the best dense similarity is below `RETRIEVAL_MIN_SCORE` (default `0.2`), nothing is returned and the user gets the no-match message. BM25 alone cannot "rescue" an off-catalog question.
+- **Filters.** An optional metadata filter (`where`) is applied to both searches.
+- **No rerank.** RRF is the only ordering step. There is no second model re-scoring the results (see [design decisions](#design-decisions)), so there is no extra LLM call.
+- **Tracing.** Each `RetrievedChunk` keeps `dense_rank`, `bm25_rank` and `fused`, so you can see in Opik which side found each product.
+
 ## Files
 
 | File | What it does |
