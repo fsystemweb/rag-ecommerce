@@ -44,7 +44,7 @@ class FakeRetriever:
 def test_run_item_retrieval_only():
     item = {"answerable": True, "expected_product_ids": ["P1"], "acceptable_product_ids": [], "history": [], "input": "x"}
     scores = run.run_item(item, FakeRetriever(), None, retrieval_only=True)
-    assert scores["mrr"] == 1.0 and scores["recall@5"] == 1.0
+    assert scores["precision@5"] == 1 / 5 and scores["recall@5"] == 1.0
 
 
 def test_unanswerable_items_have_no_retrieval_scores():

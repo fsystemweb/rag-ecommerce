@@ -22,26 +22,21 @@ Example: 5 results, the user wanted products A and B, we returned `[A, x, B, y, 
 |---|---|---|
 | precision@k | share of the top k that is relevant | 2/5 = 0.4 |
 | recall@k | share of the relevant products found in top k | 2/2 = 1.0 |
-| hit rate@k | at least one relevant product in top k | 1 |
-| MRR | 1 / position of the first relevant product | 1/1 = 1 |
-| nDCG@k | ranking quality; E counts 1.0, S 0.1, C 0.01; higher up is better | 1 = perfect order |
-| faithfulness | (LLM judge) the answer is supported by the retrieved products | 0-1 |
-| answer correctness | (LLM judge) agrees with the reference answer | 0 or 1 |
 | refusal accuracy | refuses exactly when the item is unanswerable | 0 or 1 |
 
 ## Results
 
 Retrieval only, golden items that are answerable, 10,000-product catalog:
 
-| Configuration | precision@5 | recall@5 | hit rate@5 | nDCG@5 | MRR | Status |
-|---|---|---|---|---|---|---|
-| BM25 only | 0.349 | 0.530 | 0.778 | 0.496 | 0.585 | **measured** (no API calls) |
-| dense only | - | - | - | - | - | needs Nebius key: `--search dense --retrieval-only` |
-| hybrid (default) | - | - | - | - | - | needs Nebius key: `--search hybrid --retrieval-only` |
-| hybrid + rerank | - | - | - | - | - | needs Nebius key: `--rerank` |
+| Configuration | precision@5 | recall@5 | Status |
+|---|---|---|---|
+| BM25 only | 0.349 | 0.530 | **measured** (no API calls) |
+| dense only | - | - | needs Nebius key: `--search dense --retrieval-only` |
+| hybrid (default) | - | - | needs Nebius key: `--search hybrid --retrieval-only` |
+| hybrid + rerank | - | - | needs Nebius key: `--rerank` |
 
-Only BM25 could be run without an API key; the other rows are commands to fill in (the numbers are not invented). Generation metrics also need a key.
+Only BM25 could be run without an API key; the other rows are commands to fill in (the numbers are not invented). Generation metrics (product precision/recall, refusal accuracy) also need a key.
 
 ## Known limits
 
-The judge is an LLM and makes mistakes (spot-check rows). ESCI labels are noisy. The catalog is a sample, and the golden dataset is a draft.
+ESCI labels are noisy. The catalog is a sample, and the golden dataset is a draft.

@@ -12,6 +12,5 @@
 - **LLM as judge**: a model that grades another model's output.
 - **Golden dataset**: fixed questions with known good answers, used to measure.
 - **Precision / Recall**: how much of what we returned is right / how much of what was right we returned.
-- **MRR / nDCG**: how high the first right result is / how good the whole ranking is.
 - **Trace / Span**: one request recorded end to end / one step inside it.
 - **Experiment**: one evaluation run saved so runs can be compared.

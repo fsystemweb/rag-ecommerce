@@ -15,7 +15,6 @@ PROMPT_FILES = {  # Opik prompt name -> local file
     "rag-ecommerce-generator": "generator_prompt.txt",
     "rag-ecommerce-judge": "judge_prompt.txt",
     "rag-ecommerce-rewriter": "rewriter_prompt.txt",
-    "rag-ecommerce-correctness": "correctness_prompt.txt",
 }
 VERSIONS: dict[str, str] = {}  # name -> "opik:<commit>" or "local", for traces
 _cache: dict[str, tuple[str, str]] = {}
