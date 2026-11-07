@@ -28,11 +28,11 @@ Example: 5 results, the user wanted products A and B, we returned `[A, x, B, y, 
 
 Retrieval only, golden items that are answerable, 10,000-product catalog:
 
-The app uses a single retrieval: hybrid search (dense + BM25) with an LLM rerank.
+The app uses a single retrieval: hybrid search (dense + BM25).
 
 | Configuration | precision@5 | recall@5 | Status |
 |---|---|---|---|
-| hybrid + rerank | - | - | needs Nebius key: `python -m src.evaluation.evaluator --retrieval-only` |
+| hybrid | - | - | needs Nebius key: `python -m src.evaluation.evaluator --retrieval-only` |
 
 The row is a command to fill in (the numbers are not invented). Generation metrics (product precision/recall, refusal accuracy) also need a key.
 

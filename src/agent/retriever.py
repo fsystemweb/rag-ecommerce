@@ -1,5 +1,4 @@
-"""Hybrid retriever: dense (embeddings) + BM25, merged with Reciprocal Rank Fusion,
-then reordered by an LLM rerank.
+"""Hybrid retriever: dense (embeddings) + BM25, merged with Reciprocal Rank Fusion.
 
 - always returns `k` >= 5 chunks, from distinct products when possible
 - returns [] if even the best dense score is below RETRIEVAL_MIN_SCORE
@@ -11,9 +10,7 @@ from dataclasses import dataclass, field
 
 from rank_bm25 import BM25Okapi
 
-from src.agent.prompt_loader import load_prompt, render
 from src.core import config
-from src.core.llm import make_llm
 from src.observability.tracer import track
 
 POOL = 20  # candidates taken from each side before fusing
@@ -101,15 +98,4 @@ class Retriever:
             if pid not in seen:
                 seen.add(pid)
                 result.append(chunks[cid])
-        result = result[:k]
-        return self._rerank(query, result) if len(result) > 1 else result
-
-    def _rerank(self, query, chunks):
-        """LLM rerank: one extra call per question."""
-        listing = "\n".join(f"{i}. {c.metadata['title']}" for i, c in enumerate(chunks))
-        template, _ = load_prompt("rag-ecommerce-rerank", "rerank_prompt.txt")
-        msg = render(template, query=query, listing=listing)
-        reply = make_llm(config.GENERATOR_LLM).invoke(msg).content
-        order = [int(n) for n in re.findall(r"\d+", reply) if int(n) < len(chunks)]
-        order += [i for i in range(len(chunks)) if i not in order]
-        return [chunks[i] for i in dict.fromkeys(order)]
+        return result[:k]

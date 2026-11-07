@@ -1,3 +1,0 @@
-Query: {{query}}
-Order these products from most to least relevant to the query. Reply only with the numbers, comma separated.
-{{listing}}

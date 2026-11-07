@@ -5,7 +5,7 @@
 | Language | Python 3.12 |
 | API | FastAPI + Uvicorn, Pydantic 2 |
 | RAG framework | LangChain (`langchain-openai`, pointed at Nebius) |
-| Models | Nebius AI Studio: generator, light judge, embeddings |
+| Models | Nebius AI Studio: generator, light classifier, embeddings |
 | Vector store | Chroma (local folder) + BM25 (`rank_bm25`) |
 | Observability, prompts, datasets, experiments | Comet Opik (self-hosted with Docker, optional) |
 | Front end | One static page, `public/index.html` |

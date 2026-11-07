@@ -10,9 +10,9 @@ def test_render_replaces_placeholders_without_escaping():
 def test_local_fallback_when_opik_is_off(monkeypatch):
     prompt_loader._cache.clear()
     monkeypatch.setattr(observability, "client", lambda: None)
-    text, source = load_prompt("rag-ecommerce-judge", "judge_prompt.txt")
-    assert source == "local" and "{{answer}}" in text
-    assert prompt_loader.VERSIONS["rag-ecommerce-judge"] == "local"
+    text, source = load_prompt("rag-ecommerce-classifier", "classifier_prompt.txt")
+    assert source == "local" and "{{question}}" in text
+    assert prompt_loader.VERSIONS["rag-ecommerce-classifier"] == "local"
 
 
 def test_local_fallback_when_opik_raises(monkeypatch):
@@ -22,7 +22,7 @@ def test_local_fallback_when_opik_raises(monkeypatch):
 
     prompt_loader._cache.clear()
     monkeypatch.setattr(observability, "client", lambda: Broken())
-    assert load_prompt("rag-ecommerce-judge", "judge_prompt.txt")[1] == "local"
+    assert load_prompt("rag-ecommerce-classifier", "classifier_prompt.txt")[1] == "local"
 
 
 def test_prompt_from_opik_wins(monkeypatch):

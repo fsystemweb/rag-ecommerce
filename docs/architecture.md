@@ -8,17 +8,39 @@ flowchart LR
   subgraph Online
     Q[question] --> IG{input guardrails}
     IG -- blocked --> REF[refusal]
-    IG -- ok --> TC{topic classifier}
+    IG -- ok --> TC{{"topic classifier<br/>LLM call 1 (light)"}}
     TC -- off topic --> REF
-    TC -- product search --> R[rewrite] --> H[hybrid retrieval k>=5] --> G[generate] --> OG{output guardrails}
-    OG -- NO_ANSWER or prompt leak --> REF
-    OG -- ok --> J{judge}
-    J -- ok --> ANS[answer + products]
-    J -- low score, max 3 tries --> G
-    J -- still bad --> REF
+    TC -- product search --> R["rewrite<br/>LLM call 2 (only with history)"] --> H["hybrid retrieval k>=5<br/>1 embedding call"] --> G["generate<br/>LLM call 3 (main model)"] --> OG{output guardrails}
+    H -- nothing found --> NM[no match message]
+    OG -- NO_ANSWER --> NM
+    OG -- prompt leak --> REF
+    OG -- ok --> ANS[answer + products]
   end
   F --> H
 ```
+
+Boxes with an "LLM call" label are the only chat-model calls. Everything else (regex guardrails, BM25, rank fusion, output checks) is plain Python.
+
+## LLM calls per question
+
+A question makes **2 or 3 chat-LLM calls**, plus **1 embedding call**.
+
+| # | Step | Model | When | Purpose |
+|---|---|---|---|---|
+| 1 | Topic classifier | `EVALUATOR_LLM` (light) | Every question that passes the regex guardrails | Answers `PRODUCT_SEARCH` or `OFF_TOPIC`; off-topic questions stop here. |
+| 2 | Rewrite | `GENERATOR_LLM` | Only when the request has chat history | Turns a follow-up ("¿y en negro?") into a standalone search query. |
+| - | Query embedding | embeddings model | Every question that reaches retrieval | Dense half of the hybrid search (an embedding call, not a chat call). |
+| 3 | Generate | `GENERATOR_LLM` | Every question that reaches it (streamed) | Writes the answer from the 5 retrieved products, or replies `NO_ANSWER`. |
+
+| Case | Chat calls |
+|---|---|
+| First question, no history | 2 (classify, generate) |
+| Follow-up question | 3 (classify, rewrite, generate) |
+| Off-topic question | 1 (classify) |
+| Nothing found in the catalog | 1 or 2 (classify, rewrite if history); generation is skipped |
+| Blocked by the regex guardrails (empty, injection) | 0 |
+
+There is no LLM rerank and no judge (see [design decisions](#design-decisions)).
 
 ## Files
 
@@ -31,8 +53,8 @@ flowchart LR
 | `src/ingestion/loader.py`, `chunker.py` | Read the catalog; clean text and turn each product into one chunk |
 | `src/ingestion/index.py` | Embeddings and Chroma. Resumable (`python -m src.ingestion`) |
 | `src/agent/retriever.py` | Dense + BM25 search merged with Reciprocal Rank Fusion |
-| `src/agent/rag_agent.py` | The pipeline: classify, rewrite, retrieve, generate, judge, retry |
-| `src/agent/guardrails.py` | Input checks, injection rules, retry constants |
+| `src/agent/rag_agent.py` | The pipeline: classify, rewrite, retrieve, generate |
+| `src/agent/guardrails.py` | Input checks, injection rules, fixed answers |
 | `src/agent/prompt_loader.py` | Prompts from Opik, local files as fallback |
 | `src/agent/prompts/*.txt` | Prompt templates (never inline) |
 | `src/observability/tracer.py`, `opik_sync.py` | Opt-in Opik tracing and prompt seeding |
@@ -56,36 +78,22 @@ Order: `download_data` → (`build_golden`, already done in the repo) → `sampl
 ## Design decisions
 
 - **One product = one document.** A product is the natural unit users ask about, so each product is a single chunk (title, brand, color, description, bullets) with no splitting and no overlap. Very long descriptions are cut at 3000 characters.
-- **Hybrid search.** Embeddings understand meaning but miss exact terms (brands, models, sizes). BM25 finds exact terms but not synonyms. Together they cover both. An LLM then reranks the top products by relevance to the question (one extra call).
+- **Hybrid search.** Embeddings understand meaning but miss exact terms (brands, models, sizes). BM25 finds exact terms but not synonyms. Together they cover both.
 - **At least 5 chunks (`k >= 5`).** A single hit makes the answer depend on one possibly wrong match; five distinct products let the model compare and recommend. The config refuses values below 5.
-- **A judge and retry.** The generator can invent a color or feature. A second, light model checks every claim against the products; if the score is under 3 the answer is regenerated (max 3 tries), then refused.
+- **No LLM rerank, no judge.** Both were extra LLM calls per question. The hybrid order is used as is, and the generator is told to use only the products it is given. The tradeoff is that nothing checks the answer for invented details afterwards.
 
 ## Guardrails
 
-Code: `src/agent/guardrails.py`. Most checks are **not a classifier**: they are plain deterministic Python rules (regexes and string checks). They are cheap, fast and free, but they only catch known phrasings. The one exception is the **topic classifier**, a single light LLM call that decides whether the question is a product search at all, so it also catches off-topic questions that no regex could list. The [judge](#judge) is the last line of defence.
+Code: `src/agent/guardrails.py`. Most checks are **not a classifier**: they are plain deterministic Python rules (regexes and string checks). They are cheap, fast and free, but they only catch known phrasings. The one exception is the **topic classifier**, a single light LLM call that decides whether the question is a product search at all, so it also catches off-topic questions that no regex could list. The generator prompt rules (use only the given products, `NO_ANSWER` otherwise) are the last line of defence.
 
 | Where | Check | How it works |
 |---|---|---|
 | Before everything | `clean_question` | Strips control characters, collapses spaces and cuts the question to 500 characters. |
 | Before everything | `looks_like_injection` | Matches the question against about 7 regexes in Spanish and English ("ignore previous instructions", "system prompt", "act as", "jailbreak" / "DAN"...). A match returns the fixed refusal and no LLM is called. |
 | Before the prompt | `sanitize_product_text` | Removes any `<products>` tag from catalog text, so a product description cannot close the `<products>` block and inject instructions. |
-| After the rules | topic classifier | A light LLM (`EVALUATOR_LLM`, prompt `classifier_prompt.txt`) reads the question and the last turns of the chat and answers `PRODUCT_SEARCH` or `OFF_TOPIC` (weather, news, jokes, code, price, stock, delivery, returns...). `OFF_TOPIC` returns the refusal before retrieval and generation, so nothing else is spent. Any other reply lets the question through (fail open), because the generator rules and the judge are still behind it. |
+| After the rules | topic classifier | A light LLM (`EVALUATOR_LLM`, prompt `classifier_prompt.txt`) reads the question and the last turns of the chat and answers `PRODUCT_SEARCH` or `OFF_TOPIC` (weather, news, jokes, code, price, stock, delivery, returns...). `OFF_TOPIC` returns the refusal before retrieval and generation, so nothing else is spent. Any other reply lets the question through (fail open), because the generator rules are still behind it. |
 | After generation | `leaks_prompt` | A canary string (`CANARY-7f3a91`) is hidden in the system prompt. If it shows up in an answer, the prompt leaked and the answer is replaced with a refusal. |
-| After generation | `NO_ANSWER` | If the generator answers `NO_ANSWER`, the user gets the refusal. |
-| After retrieval | empty result | If nothing is retrieved, the user gets the refusal. |
+| After generation | `NO_ANSWER` | If the generator answers `NO_ANSWER`, the user gets the fixed no-match message (`NO_MATCH`): no product in the catalog matches. |
+| After retrieval | empty result | If nothing is retrieved, the user gets the same no-match message. |
 
-The same file holds the constants that control the retry loop (`MAX_QUESTION_CHARS`, `MIN_JUDGE_SCORE`, `MAX_ATTEMPTS`). Changing them needs approval (see `AGENTS.md`).
-
-## Judge
-
-Code: `Pipeline.judge_answer` in `src/agent/rag_agent.py`, prompt in `src/agent/prompts/judge_prompt.txt`.
-
-The judge is a second LLM call that fact-checks the generated answer against the retrieved products.
-
-- **Input:** the question, the retrieved product text and the generated answer.
-- **Output:** JSON like `{"grounded": true, "score": 1-5, "unsupported_claims": ["..."]}`. Every claim about a product (brand, color, features, what it is for) must be written in the products.
-- **Model:** a separate, lighter model (`EVALUATOR_LLM`), not the generator (`GENERATOR_LLM`).
-- **Score 3 or higher** (`MIN_JUDGE_SCORE`): the answer is accepted and returned with the products it mentions.
-- **Score lower than 3:** the unsupported claims are sent back to the generator as feedback and it tries again. The streaming endpoint sends a `reset` event so the page clears the text.
-- **After 3 attempts** (`MAX_ATTEMPTS`): the user gets the refusal with `grounded=false`.
-- **Invalid JSON from the judge:** counts as score 1, so the check fails safe.
+The same file holds `MAX_QUESTION_CHARS` and the two fixed answers: `REFUSAL` (blocked or off-topic question) and `NO_MATCH` (nothing found in the catalog).
