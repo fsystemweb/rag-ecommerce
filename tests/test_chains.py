@@ -107,7 +107,7 @@ def test_api_endpoints(retriever):
 
 
 def test_missing_key_gives_clear_error(monkeypatch):
-    monkeypatch.setattr(config, "OPENAI_API_KEY", "")
+    monkeypatch.setattr(config, "NEBIUS_API_KEY", "")
     get_pipeline.cache_clear()
     r = TestClient(app).post("/ask", json={"question": "hola"})
-    assert r.status_code == 503 and "OPENAI_API_KEY" in r.json()["detail"]
+    assert r.status_code == 503 and "NEBIUS_API_KEY" in r.json()["detail"]

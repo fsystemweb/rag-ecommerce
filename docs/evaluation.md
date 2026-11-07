@@ -36,9 +36,9 @@ Retrieval only, golden items that are answerable, 10,000-product catalog:
 | Configuration | precision@5 | recall@5 | hit rate@5 | nDCG@5 | MRR | Status |
 |---|---|---|---|---|---|---|
 | BM25 only | 0.349 | 0.530 | 0.778 | 0.496 | 0.585 | **measured** (no API calls) |
-| dense only | - | - | - | - | - | needs OpenAI key: `--search dense --retrieval-only` |
-| hybrid (default) | - | - | - | - | - | needs OpenAI key: `--search hybrid --retrieval-only` |
-| hybrid + rerank | - | - | - | - | - | needs OpenAI key: `--rerank` |
+| dense only | - | - | - | - | - | needs Nebius key: `--search dense --retrieval-only` |
+| hybrid (default) | - | - | - | - | - | needs Nebius key: `--search hybrid --retrieval-only` |
+| hybrid + rerank | - | - | - | - | - | needs Nebius key: `--rerank` |
 
 Only BM25 could be run without an API key; the other rows are commands to fill in (the numbers are not invented). Generation metrics also need a key.
 

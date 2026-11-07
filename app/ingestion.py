@@ -14,10 +14,10 @@ import time
 import pandas as pd
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from app import config
+from app.llm import make_embeddings
 
 # One product usually fits in one chunk. ~1000 chars is about 250 tokens: small
 # enough to stay focused, big enough to keep a description together.
@@ -26,7 +26,6 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 100
 MAX_TEXT_CHARS = 3000  # very long descriptions are noise; cut them
 BATCH_SIZE = 100
-PRICE_PER_1M_TOKENS = 0.02  # text-embedding-3-small, USD (check OpenAI pricing)
 
 
 def load_catalog(limit: int | None = None) -> pd.DataFrame:
@@ -86,7 +85,7 @@ def get_store(embeddings=None) -> Chroma:
     """Open (or create) the persistent vector store. Cosine distance."""
     return Chroma(
         collection_name="products",
-        embedding_function=embeddings or OpenAIEmbeddings(model=config.EMBEDDINGS_MODEL),
+        embedding_function=embeddings or make_embeddings(),
         persist_directory=str(config.VECTOR_STORE_DIR),
         collection_metadata={"hnsw:space": "cosine"},
     )
@@ -118,7 +117,7 @@ def ingest(df: pd.DataFrame, store: Chroma, batch_size: int = BATCH_SIZE) -> int
 
 def estimate_cost(chunks: list[Document]) -> tuple[int, float]:
     tokens = sum(len(c.page_content) for c in chunks) // 4  # rough: 4 chars per token
-    return tokens, tokens / 1e6 * PRICE_PER_1M_TOKENS
+    return tokens, tokens / 1e6 * config.EMBEDDINGS_PRICE_PER_1M
 
 
 def main():
@@ -136,7 +135,7 @@ def main():
     pending = len(chunks) - len(set(store.get(include=[])["ids"]) & {c.id for c in chunks})
     tokens, usd = estimate_cost(chunks)
     print(f"pending chunks: {pending}  (full run ~{tokens:,} tokens, ~${usd:.2f})")
-    if pending and not args.yes and input("Embed with OpenAI (costs money)? [y/N] ").lower() != "y":
+    if pending and not args.yes and input("Embed with Nebius (costs money)? [y/N] ").lower() != "y":
         return
     print(f"new chunks stored: {ingest(df, store)}")
 

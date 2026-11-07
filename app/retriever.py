@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from rank_bm25 import BM25Okapi
 
 from app import config
+from app.llm import make_llm
 from app.observability import track
 from app.prompt_loader import load_prompt, render
 
@@ -106,12 +107,10 @@ class Retriever:
 
     def _rerank(self, query, chunks):
         """Optional LLM rerank: one extra call, slower and costs money."""
-        from langchain_openai import ChatOpenAI
-
         listing = "\n".join(f"{i}. {c.metadata['title']}" for i, c in enumerate(chunks))
         template, _ = load_prompt("rag-ecommerce-rerank", "rerank_prompt.txt")
         msg = render(template, query=query, listing=listing)
-        reply = ChatOpenAI(model=config.GENERATOR_LLM, temperature=0).invoke(msg).content
+        reply = make_llm(config.GENERATOR_LLM).invoke(msg).content
         order = [int(n) for n in re.findall(r"\d+", reply) if int(n) < len(chunks)]
         order += [i for i in range(len(chunks)) if i not in order]
         return [chunks[i] for i in dict.fromkeys(order)]
