@@ -2,7 +2,7 @@
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from app import config
+from src.core import config
 
 
 def make_llm(model: str) -> ChatOpenAI:

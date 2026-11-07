@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from langchain_core.embeddings import DeterministicFakeEmbedding
 
-from app.ingestion import get_store, ingest
+from src.ingestion.index import get_store, ingest
 
 PRODUCTS = [
     ("P1", "Auriculares inalámbricos Sony para correr", "Sony", "Negro"),
@@ -38,7 +38,7 @@ def catalog_df():
 @pytest.fixture
 def store(tmp_path, monkeypatch, catalog_df):
     """Real Chroma on a temp folder, with fake (deterministic) embeddings."""
-    monkeypatch.setattr("app.config.VECTOR_STORE_DIR", tmp_path / "chroma")
+    monkeypatch.setattr("src.core.config.VECTOR_STORE_DIR", tmp_path / "chroma")
     s = get_store(DeterministicFakeEmbedding(size=64))
     ingest(catalog_df, s)
     return s

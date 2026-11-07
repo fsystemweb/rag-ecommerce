@@ -1,6 +1,6 @@
 """Golden dataset loader with validation, and an idempotent upload to Opik.
 
-Run: python -m evaluation.dataset [--upload]
+Run: python -m src.evaluation.dataset [--upload]
 """
 
 import csv
@@ -9,10 +9,10 @@ import sys
 
 import pandas as pd
 
-from app import observability
-from app.config import DATA_DIR, ROOT
+from src.core.config import DATA_DIR, ROOT
+from src.observability import tracer as observability
 
-GOLDEN_CSV = ROOT / "evaluation" / "datasets" / "golden_es.csv"
+GOLDEN_CSV = ROOT / "src" / "evaluation" / "datasets" / "golden_es.csv"
 DATASET_NAME = "rag-ecommerce-golden"
 TYPES = {"exact", "attribute", "broad", "brand", "follow_up", "typo", "unanswerable", "adversarial"}
 

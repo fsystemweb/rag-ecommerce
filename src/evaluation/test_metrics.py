@@ -1,6 +1,6 @@
-"""Offline checks with hand-made examples. Run: python -m evaluation.test_metrics (or pytest)."""
+"""Offline checks with hand-made examples. Run: python -m src.evaluation.test_metrics (or pytest)."""
 
-from evaluation.metrics import (
+from src.evaluation.metrics import (
     precision_at_k,
     product_precision,
     product_recall,

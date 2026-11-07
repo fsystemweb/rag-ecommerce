@@ -26,5 +26,5 @@
 
 ## Rules
 
-- Add an item: append a row, run `python -m evaluation.dataset` (validates ids against the catalog).
+- Add an item: append a row, run `python -m src.evaluation.dataset` (validates ids against the catalog).
 - Never edit the set to make a score better. Changes go in a PR with the reason.

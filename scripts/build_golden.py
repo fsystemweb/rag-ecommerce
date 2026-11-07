@@ -2,7 +2,7 @@
 
 Usage: python -m scripts.build_golden
 
-Writes evaluation/datasets/golden_es.csv and golden_queries.txt (the queries whose
+Writes src/evaluation/datasets/golden_es.csv and golden_queries.txt (the queries whose
 E/S products must be in the sampled catalog, read by scripts.sample_catalog).
 Answerable rows come from real ESCI queries; unanswerable and adversarial rows are
 written by hand below. expected_output is a template made from product data.
@@ -15,10 +15,10 @@ import re
 
 import pandas as pd
 
-from app.config import DATA_DIR, ROOT
-from app.guardrails import REFUSAL
+from src.agent.guardrails import REFUSAL
+from src.core.config import DATA_DIR, ROOT
 
-OUT = ROOT / "evaluation" / "datasets"
+OUT = ROOT / "src" / "evaluation" / "datasets"
 SEED = 7
 N_ESCI, N_TYPO, N_FOLLOW = 84, 6, 6  # N_ESCI includes the typo rows
 COLORS = ["negro", "blanco", "azul", "rojo", "verde", "rosa", "gris"]

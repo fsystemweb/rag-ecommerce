@@ -1,7 +1,7 @@
 import pytest
 
-from app import config
-from app.retriever import Retriever, rrf, tokenize
+from src.agent.retriever import Retriever, rrf, tokenize
+from src.core import config
 
 
 def test_tokenize_folds_accents_and_keeps_units():

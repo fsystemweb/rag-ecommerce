@@ -5,7 +5,7 @@ Usage: python -m scripts.download_data
 
 import requests
 
-from app.config import DATA_DIR
+from src.core.config import DATA_DIR
 
 BASE = "https://github.com/amazon-science/esci-data/raw/main/shopping_queries_dataset/"
 FILES = [

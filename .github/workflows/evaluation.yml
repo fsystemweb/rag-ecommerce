@@ -13,7 +13,7 @@ jobs:
       - run: |
           python -m scripts.download_data
           python -m scripts.sample_catalog --size 10000
-          python -m app.ingestion --yes
-          python -m evaluation.run --retrieval-only --floor recall@5=0.4
+          python -m src.ingestion --yes
+          python -m src.evaluation.evaluator --retrieval-only --floor recall@5=0.4
         env:
           NEBIUS_API_KEY: ${{ secrets.NEBIUS_API_KEY }}

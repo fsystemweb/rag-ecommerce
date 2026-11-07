@@ -1,6 +1,7 @@
 import pandas as pd
 
-from app.ingestion import build_document, clean, ingest, split
+from src.ingestion.chunker import build_document, clean, split
+from src.ingestion.index import ingest
 
 
 def test_clean_removes_html_and_spaces():

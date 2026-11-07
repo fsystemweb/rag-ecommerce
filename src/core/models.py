@@ -1,15 +1,6 @@
-"""Pydantic models shared by the API, the ingestion and the evaluation."""
+"""Pydantic models used by the API."""
 
 from pydantic import BaseModel, Field
-
-
-class Product(BaseModel):
-    product_id: str
-    title: str
-    description: str = ""
-    bullets: str = ""
-    brand: str = ""
-    color: str = ""
 
 
 class Turn(BaseModel):
