@@ -2,7 +2,7 @@
 
 Run: python -m src.ingestion [--limit N] [--yes]
 
-Safe to re-run: chunk ids are "product_id:chunk_index", and ids already in
+Safe to re-run: chunk ids are the product ids, and ids already in
 the store are skipped, so an interrupted run just continues.
 """
 
@@ -15,7 +15,7 @@ from langchain_core.documents import Document
 
 from src.core import config
 from src.core.llm import make_embeddings
-from src.ingestion.chunker import split
+from src.ingestion.chunker import to_chunk
 from src.ingestion.loader import load_catalog
 
 BATCH_SIZE = 100
@@ -46,7 +46,7 @@ def add_with_retry(store: Chroma, docs: list[Document], tries: int = 5):
 
 def ingest(df: pd.DataFrame, store: Chroma, batch_size: int = BATCH_SIZE) -> int:
     """Embed and store every chunk that is not in the store yet. Returns new chunks."""
-    chunks = [c for _, row in df.iterrows() for c in split(row)]
+    chunks = [to_chunk(row) for _, row in df.iterrows()]
     done = set(store.get(include=[])["ids"])
     todo = [c for c in chunks if c.id not in done]
     for i in range(0, len(todo), batch_size):
@@ -67,8 +67,8 @@ def main():
     args = ap.parse_args()
 
     df = load_catalog(args.limit)
-    chunks = [c for _, row in df.iterrows() for c in split(row)]
-    print(f"products: {len(df)}  chunks: {len(chunks)}  ({len(chunks) / len(df):.2f} per product)")
+    chunks = [to_chunk(row) for _, row in df.iterrows()]
+    print(f"products: {len(df)}  chunks: {len(chunks)} ")
     print("sample:", chunks[0].page_content[:200], chunks[0].metadata)
 
     store = get_store()

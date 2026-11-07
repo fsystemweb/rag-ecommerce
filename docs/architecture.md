@@ -22,7 +22,7 @@ flowchart LR
 | `src/core/config.py` | The only place that reads environment variables |
 | `src/core/llm.py` | Chat and embeddings clients (Nebius) |
 | `src/core/models.py` | Pydantic models (`AskRequest`, `AskResponse`) |
-| `src/ingestion/loader.py`, `chunker.py` | Read the catalog; clean text and split products into chunks |
+| `src/ingestion/loader.py`, `chunker.py` | Read the catalog; clean text and turn each product into one chunk |
 | `src/ingestion/index.py` | Embeddings and Chroma. Resumable (`python -m src.ingestion`) |
 | `src/agent/retriever.py` | Dense + BM25 search merged with Reciprocal Rank Fusion |
 | `src/agent/rag_agent.py` | The pipeline: rewrite, retrieve, generate, judge, retry |
@@ -36,7 +36,7 @@ flowchart LR
 
 ## Design decisions
 
-- **One product = one document.** A product is the natural unit users ask about. Only long descriptions are split, and every chunk repeats the title and brand so it is never anonymous.
+- **One product = one document.** A product is the natural unit users ask about, so each product is a single chunk (title, brand, color, description, bullets) with no splitting and no overlap. Very long descriptions are cut at 3000 characters.
 - **Hybrid search.** Embeddings understand meaning but miss exact terms (brands, models, sizes). BM25 finds exact terms but not synonyms. Together they cover both.
 - **At least 5 chunks (`k >= 5`).** A single hit makes the answer depend on one possibly wrong match; five distinct products let the model compare and recommend. The config refuses values below 5.
 - **A judge and retry.** The generator can invent a color or feature. A second, light model checks every claim against the products; if the score is under 3 the answer is regenerated (max 3 tries), then refused.

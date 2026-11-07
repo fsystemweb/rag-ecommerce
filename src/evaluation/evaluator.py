@@ -24,7 +24,8 @@ from src.core.llm import make_llm
 from src.core.models import AskRequest, Turn
 from src.evaluation import metrics
 from src.evaluation.dataset import DATASET_NAME, load_golden
-from src.ingestion.index import get_store, load_catalog, split
+from src.ingestion.chunker import to_chunk
+from src.ingestion.index import get_store, load_catalog
 from src.observability import tracer as observability
 
 RETRIEVAL_KEYS = ["precision@5", "recall@5", "precision@10", "recall@10"]
@@ -35,7 +36,7 @@ class CatalogStore:
     """Minimal store for BM25-only runs: reads the chunks from the catalog, no embeddings."""
 
     def get(self, include=None):
-        docs = [c for _, row in load_catalog().iterrows() for c in split(row)]
+        docs = [to_chunk(row) for _, row in load_catalog().iterrows()]
         return {"ids": [d.id for d in docs], "documents": [d.page_content for d in docs], "metadatas": [d.metadata for d in docs]}
 
 
