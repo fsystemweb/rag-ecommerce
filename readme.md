@@ -23,3 +23,18 @@ Try it: `curl -X POST localhost:8000/ask -H 'content-type: application/json' -d 
 
 Full docs (overview, data, architecture, evaluation, FAQ): see [`docs/`](docs/) — `npx docsify-cli serve docs`.
 Contributor rules: [`AGENTS.md`](AGENTS.md). Tests: `pytest`.
+
+## Observability (optional)
+
+[Comet Opik](https://github.com/comet-ml/opik) shows every question as a trace (rewrite, retrieval, generation, judge, retries) and can hold the prompts. It needs Docker.
+
+```bash
+scripts/opik.sh up                  # UI on http://localhost:5173
+# in .env: OPIK_URL_OVERRIDE=http://localhost:5173/api
+```
+
+Without `OPIK_URL_OVERRIDE` nothing changes. Prompts are read from Opik first (names `rag-ecommerce-generator|judge|rewriter`) and fall back to `app/prompts/*.txt`.
+
+## Cost
+
+Each question calls OpenAI up to 3 × (generator + judge) times, with 5 products in each prompt. Ingestion and evaluation also cost money.

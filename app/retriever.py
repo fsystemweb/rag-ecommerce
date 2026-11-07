@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from rank_bm25 import BM25Okapi
 
 from app import config
+from app.observability import track
 
 POOL = 20  # candidates taken from each side before fusing
 RRF_C = 60  # standard RRF constant
@@ -72,6 +73,7 @@ class Retriever:
             out.append((self._ids[i], self._texts[i], self._metas[i]))
         return out
 
+    @track("retrieve", type="tool")
     def retrieve(self, query: str, k: int | None = None, where: dict | None = None) -> list[RetrievedChunk]:
         k = max(k or config.RETRIEVAL_K, 5)
         dense = self._dense(query, where)
