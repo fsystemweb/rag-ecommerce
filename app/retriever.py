@@ -44,8 +44,9 @@ def rrf(rankings: list[list[str]]) -> dict[str, float]:
 
 
 class Retriever:
-    def __init__(self, store, rerank: bool | None = None):
+    def __init__(self, store, rerank: bool | None = None, mode: str = "hybrid"):
         self.store = store
+        self.mode = mode  # "hybrid" (default), "dense" or "bm25" (for evaluation)
         self.rerank = config.RERANK if rerank is None else rerank
         self._bm25 = None  # built lazily, in memory (10k products is fast)
 
@@ -76,14 +77,14 @@ class Retriever:
     @track("retrieve", type="tool")
     def retrieve(self, query: str, k: int | None = None, where: dict | None = None) -> list[RetrievedChunk]:
         k = max(k or config.RETRIEVAL_K, 5)
-        dense = self._dense(query, where)
-        if not dense or max(d[3] for d in dense) < config.RETRIEVAL_MIN_SCORE:
+        dense = [] if self.mode == "bm25" else self._dense(query, where)
+        if self.mode != "bm25" and (not dense or max(d[3] for d in dense) < config.RETRIEVAL_MIN_SCORE):
             return []  # nothing relevant in the catalog
 
         chunks: dict[str, RetrievedChunk] = {}
         for rank, (cid, text, meta, sim) in enumerate(dense, start=1):
             chunks[cid] = RetrievedChunk(text, meta, sim, dense_rank=rank)
-        bm25 = self._bm25_search(query, where)
+        bm25 = [] if self.mode == "dense" else self._bm25_search(query, where)
         for rank, (cid, text, meta) in enumerate(bm25, start=1):
             if cid in chunks:
                 chunks[cid].bm25_rank = rank

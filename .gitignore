@@ -120,3 +120,6 @@ solutions/*/model_data.json
 
 # Local Opik clone
 .opik/
+
+# Evaluation outputs
+evaluation/results/
