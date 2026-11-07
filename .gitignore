@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -61,7 +62,9 @@ coverage.xml
 Thumbs.db
 
 # Data files
+# (CSV is ignored, but the golden dataset is versioned)
 *.csv
+!evaluation/datasets/*.csv
 *.tsv
 *.xls
 *.xlsx
@@ -76,8 +79,9 @@ Thumbs.db
 *.npy
 *.npz
 
-# Ignore raw data
-/data/raw-data/
+# Dataset and vector store are downloaded/generated, never committed
+/data/*
+!/data/README.md
 
 # Ignore model outputs
 *.model
