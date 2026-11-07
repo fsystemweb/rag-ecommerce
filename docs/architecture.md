@@ -8,7 +8,9 @@ flowchart LR
   subgraph Online
     Q[question] --> IG{input guardrails}
     IG -- blocked --> REF[refusal]
-    IG -- ok --> R[rewrite] --> H[hybrid retrieval k>=5] --> G[generate] --> OG{output guardrails}
+    IG -- ok --> TC{topic classifier}
+    TC -- off topic --> REF
+    TC -- product search --> R[rewrite] --> H[hybrid retrieval k>=5] --> G[generate] --> OG{output guardrails}
     OG -- NO_ANSWER or prompt leak --> REF
     OG -- ok --> J{judge}
     J -- ok --> ANS[answer + products]
@@ -29,7 +31,7 @@ flowchart LR
 | `src/ingestion/loader.py`, `chunker.py` | Read the catalog; clean text and turn each product into one chunk |
 | `src/ingestion/index.py` | Embeddings and Chroma. Resumable (`python -m src.ingestion`) |
 | `src/agent/retriever.py` | Dense + BM25 search merged with Reciprocal Rank Fusion |
-| `src/agent/rag_agent.py` | The pipeline: rewrite, retrieve, generate, judge, retry |
+| `src/agent/rag_agent.py` | The pipeline: classify, rewrite, retrieve, generate, judge, retry |
 | `src/agent/guardrails.py` | Input checks, injection rules, retry constants |
 | `src/agent/prompt_loader.py` | Prompts from Opik, local files as fallback |
 | `src/agent/prompts/*.txt` | Prompt templates (never inline) |
@@ -60,13 +62,14 @@ Order: `download_data` → (`build_golden`, already done in the repo) → `sampl
 
 ## Guardrails
 
-Code: `src/agent/guardrails.py`. They are **not a classifier**: there is no ML model and no LLM call, only plain deterministic Python rules (regexes and string checks). They are cheap, fast and free, but they only catch known phrasings. A paraphrased injection can get through, and the [judge](#judge) is the second line of defence for that case.
+Code: `src/agent/guardrails.py`. Most checks are **not a classifier**: they are plain deterministic Python rules (regexes and string checks). They are cheap, fast and free, but they only catch known phrasings. The one exception is the **topic classifier**, a single light LLM call that decides whether the question is a product search at all, so it also catches off-topic questions that no regex could list. The [judge](#judge) is the last line of defence.
 
 | Where | Check | How it works |
 |---|---|---|
 | Before everything | `clean_question` | Strips control characters, collapses spaces and cuts the question to 500 characters. |
 | Before everything | `looks_like_injection` | Matches the question against about 7 regexes in Spanish and English ("ignore previous instructions", "system prompt", "act as", "jailbreak" / "DAN"...). A match returns the fixed refusal and no LLM is called. |
 | Before the prompt | `sanitize_product_text` | Removes any `<products>` tag from catalog text, so a product description cannot close the `<products>` block and inject instructions. |
+| After the rules | topic classifier | A light LLM (`EVALUATOR_LLM`, prompt `classifier_prompt.txt`) reads the question and the last turns of the chat and answers `PRODUCT_SEARCH` or `OFF_TOPIC` (weather, news, jokes, code, price, stock, delivery, returns...). `OFF_TOPIC` returns the refusal before retrieval and generation, so nothing else is spent. Any other reply lets the question through (fail open), because the generator rules and the judge are still behind it. |
 | After generation | `leaks_prompt` | A canary string (`CANARY-7f3a91`) is hidden in the system prompt. If it shows up in an answer, the prompt leaked and the answer is replaced with a refusal. |
 | After generation | `NO_ANSWER` | If the generator answers `NO_ANSWER`, the user gets the refusal. |
 | After retrieval | empty result | If nothing is retrieved, the user gets the refusal. |

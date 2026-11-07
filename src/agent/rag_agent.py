@@ -1,4 +1,4 @@
-"""The RAG pipeline: rewrite -> retrieve -> generate -> judge (retry) -> answer.
+"""The RAG pipeline: classify -> rewrite -> retrieve -> generate -> judge (retry) -> answer.
 
 `Pipeline.run()` yields events so the same code serves /ask and /ask/stream:
   {"type": "status", "step": "..."}   progress
@@ -43,12 +43,22 @@ def parse_judge(text: str) -> dict:
 
 
 class Pipeline:
-    def __init__(self, retriever, generator=None, judge=None):
+    def __init__(self, retriever, generator=None, judge=None, classifier=None):
         self.retriever = retriever
         self.generator = generator or make_llm(config.GENERATOR_LLM)
         self.judge = judge or make_llm(config.EVALUATOR_LLM)
+        self.classifier = classifier or make_llm(config.EVALUATOR_LLM)
 
     # --- steps -------------------------------------------------------
+    @track("classify", type="llm")
+    def is_off_topic(self, question, history) -> bool:
+        text = "\n".join(f"{t.role}: {t.content}" for t in history[-HISTORY_TURNS:]) or "(none)"
+        template, _ = load_prompt("rag-ecommerce-classifier", "classifier_prompt.txt")
+        reply = self.classifier.invoke(
+            render(template, history=text, question=question), config=observability.llm_config()
+        ).content
+        return guardrails.is_off_topic(reply)
+
     @track("rewrite", type="llm")
     def rewrite(self, question, history) -> str:
         if not history:
@@ -80,6 +90,12 @@ class Pipeline:
         question = guardrails.clean_question(req.question)
         if not question or guardrails.looks_like_injection(question):
             log.warning("question blocked by input guardrail")
+            yield self._final(refusal)
+            return
+
+        yield {"type": "status", "step": "classify"}
+        if self.is_off_topic(question, req.history):
+            log.warning("question blocked by topic classifier")
             yield self._final(refusal)
             return
 

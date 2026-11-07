@@ -27,6 +27,13 @@ def fake_rerank(monkeypatch):
     monkeypatch.setattr("src.agent.retriever.make_llm", lambda *a, **k: GenericFakeChatModel(messages=iter([order] * 50)))
 
 
+@pytest.fixture(autouse=True)
+def fake_classifier(monkeypatch):
+    """The pipeline classifies the topic with an LLM; offline every question is a product search."""
+    ok = AIMessage(content="PRODUCT_SEARCH")
+    monkeypatch.setattr("src.agent.rag_agent.make_llm", lambda *a, **k: GenericFakeChatModel(messages=iter([ok] * 50)))
+
+
 @pytest.fixture
 def catalog_df():
     return pd.DataFrame(
