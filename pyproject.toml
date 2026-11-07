@@ -7,5 +7,6 @@ select = ["E", "F", "I", "B"]
 ignore = ["B008"]  # FastAPI Depends() in defaults is the documented pattern
 
 [tool.pytest.ini_options]
+pythonpath = ["."]
 testpaths = ["tests", "evaluation"]
 python_files = ["test_*.py"]
