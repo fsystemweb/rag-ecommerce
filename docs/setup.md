@@ -25,8 +25,6 @@ python -m src.evaluation.evaluator --retrieval-only   # evaluation (paid embeddi
 npx docsify-cli serve docs           # these docs
 ```
 
-To try without any API key: `python -m src.evaluation.evaluator --search bm25 --retrieval-only` needs only the catalog.
-
 ## Troubleshooting
 
 - **503 "NEBIUS_API_KEY is not set"**: fill `.env`.

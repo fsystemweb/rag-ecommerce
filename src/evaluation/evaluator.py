@@ -1,12 +1,10 @@
 """Run the golden dataset through the real pipeline and report the metrics.
 
 Usage:
-  python -m src.evaluation.evaluator --retrieval-only              # embeddings only (cheap)
-  python -m src.evaluation.evaluator --search bm25 --retrieval-only  # no API calls at all
-  python -m src.evaluation.evaluator [--k 5] [--limit N] [--search hybrid|dense|bm25] [--rerank]
-                           [--generator MODEL] [--floor recall@5=0.4]
+  python -m src.evaluation.evaluator --retrieval-only   # embeddings + rerank only (cheaper)
+  python -m src.evaluation.evaluator [--k 5] [--limit N] [--generator MODEL] [--floor recall@5=0.4]
 
-Without --retrieval-only this makes paid Nebius calls. With OPIK_URL_OVERRIDE set,
+Both modes make paid Nebius calls (without --retrieval-only, also generation and judge). With OPIK_URL_OVERRIDE set,
 the run is also logged as an Opik experiment. Exit code 1 if a --floor is not met.
 """
 
@@ -24,20 +22,11 @@ from src.core.llm import make_llm
 from src.core.models import AskRequest, Turn
 from src.evaluation import metrics
 from src.evaluation.dataset import DATASET_NAME, load_golden
-from src.ingestion.chunker import to_chunk
-from src.ingestion.index import get_store, load_catalog
+from src.ingestion.index import get_store
 from src.observability import tracer as observability
 
 RETRIEVAL_KEYS = ["precision@5", "recall@5", "precision@10", "recall@10"]
 GENERATION_KEYS = ["product_precision", "product_recall", "refusal_accuracy"]
-
-
-class CatalogStore:
-    """Minimal store for BM25-only runs: reads the chunks from the catalog, no embeddings."""
-
-    def get(self, include=None):
-        docs = [to_chunk(row) for _, row in load_catalog().iterrows()]
-        return {"ids": [d.id for d in docs], "documents": [d.page_content for d in docs], "metadatas": [d.metadata for d in docs]}
 
 
 def retrieval_query(item, retrieval_only):
@@ -103,20 +92,17 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--limit", type=int)
-    ap.add_argument("--search", choices=["hybrid", "dense", "bm25"], default="hybrid")
-    ap.add_argument("--rerank", action="store_true")
     ap.add_argument("--generator", default=config.GENERATOR_LLM)
     ap.add_argument("--retrieval-only", action="store_true")
     ap.add_argument("--floor", action="append", default=[], help="e.g. recall@5=0.4")
     args = ap.parse_args(argv)
     config.RETRIEVAL_K = args.k
 
-    store = CatalogStore() if args.search == "bm25" else get_store()
-    retriever = Retriever(store, rerank=args.rerank, mode=args.search)
+    retriever = Retriever(get_store())
     pipeline = None if args.retrieval_only else Pipeline(retriever, make_llm(args.generator), make_llm(config.EVALUATOR_LLM))
     items = load_golden()[: args.limit]
     keys = RETRIEVAL_KEYS if args.retrieval_only else RETRIEVAL_KEYS + GENERATION_KEYS
-    name = f"{args.search}-k{args.k}{'-rerank' if args.rerank else ''}-{'retrieval' if args.retrieval_only else args.generator}"
+    name = f"hybrid-rerank-k{args.k}-{'retrieval' if args.retrieval_only else args.generator}"
 
     rows = []
 
@@ -137,9 +123,8 @@ def main(argv=None):
             experiment_name=name,
             task_threads=1,
             experiment_config={
-                "search": args.search,
+                "search": "hybrid-rerank",
                 "k": args.k,
-                "rerank": args.rerank,
                 "generator": args.generator,
                 "retrieval_only": args.retrieval_only,
             },

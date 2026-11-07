@@ -6,7 +6,7 @@
 - **Vector store**: database of embeddings (Chroma here).
 - **Hybrid search**: embeddings search plus keyword search, merged.
 - **BM25**: classic keyword ranking by term frequency.
-- **Reranking**: reordering results with a stronger model (optional, slower).
+- **Reranking**: reordering results with a stronger model (one extra LLM call per question).
 - **Grounding**: every claim in the answer comes from the retrieved data.
 - **Hallucination**: the model states something not supported by the data.
 - **LLM as judge**: a model that grades another model's output.

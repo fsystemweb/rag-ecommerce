@@ -1,4 +1,5 @@
-"""Hybrid retriever: dense (embeddings) + BM25, merged with Reciprocal Rank Fusion.
+"""Hybrid retriever: dense (embeddings) + BM25, merged with Reciprocal Rank Fusion,
+then reordered by an LLM rerank.
 
 - always returns `k` >= 5 chunks, from distinct products when possible
 - returns [] if even the best dense score is below RETRIEVAL_MIN_SCORE
@@ -46,10 +47,8 @@ def rrf(rankings: list[list[str]]) -> dict[str, float]:
 
 
 class Retriever:
-    def __init__(self, store, rerank: bool | None = None, mode: str = "hybrid"):
+    def __init__(self, store):
         self.store = store
-        self.mode = mode  # "hybrid" (default), "dense" or "bm25" (for evaluation)
-        self.rerank = config.RERANK if rerank is None else rerank
         self._bm25 = None  # built lazily, in memory (10k products is fast)
 
     def _load_bm25(self):
@@ -79,14 +78,14 @@ class Retriever:
     @track("retrieve", type="tool")
     def retrieve(self, query: str, k: int | None = None, where: dict | None = None) -> list[RetrievedChunk]:
         k = max(k or config.RETRIEVAL_K, 5)
-        dense = [] if self.mode == "bm25" else self._dense(query, where)
-        if self.mode != "bm25" and (not dense or max(d[3] for d in dense) < config.RETRIEVAL_MIN_SCORE):
+        dense = self._dense(query, where)
+        if not dense or max(d[3] for d in dense) < config.RETRIEVAL_MIN_SCORE:
             return []  # nothing relevant in the catalog
 
         chunks: dict[str, RetrievedChunk] = {}
         for rank, (cid, text, meta, sim) in enumerate(dense, start=1):
             chunks[cid] = RetrievedChunk(text, meta, sim, dense_rank=rank)
-        bm25 = [] if self.mode == "dense" else self._bm25_search(query, where)
+        bm25 = self._bm25_search(query, where)
         for rank, (cid, text, meta) in enumerate(bm25, start=1):
             if cid in chunks:
                 chunks[cid].bm25_rank = rank
@@ -103,10 +102,10 @@ class Retriever:
                 seen.add(pid)
                 result.append(chunks[cid])
         result = result[:k]
-        return self._rerank(query, result) if self.rerank else result
+        return self._rerank(query, result) if len(result) > 1 else result
 
     def _rerank(self, query, chunks):
-        """Optional LLM rerank: one extra call, slower and costs money."""
+        """LLM rerank: one extra call per question."""
         listing = "\n".join(f"{i}. {c.metadata['title']}" for i, c in enumerate(chunks))
         template, _ = load_prompt("rag-ecommerce-rerank", "rerank_prompt.txt")
         msg = render(template, query=query, listing=listing)
