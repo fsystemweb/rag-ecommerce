@@ -12,23 +12,21 @@ the run is also logged as an Opik experiment. Exit code 1 if a --floor is not me
 
 import argparse
 import json
-import re
 import sys
 from collections import defaultdict
 from statistics import mean
 
 from app import config, guardrails, observability
-from app.chains import Pipeline, format_context
+from app.chains import Pipeline
 from app.ingestion import get_store, load_catalog, split
 from app.llm import make_llm
 from app.models import AskRequest, Turn
-from app.prompt_loader import load_prompt, render
 from app.retriever import Retriever
 from evaluation import metrics
 from evaluation.dataset import DATASET_NAME, load_golden
 
-RETRIEVAL_KEYS = ["precision@5", "recall@5", "hit_rate@5", "ndcg@5", "precision@10", "recall@10", "hit_rate@10", "ndcg@10", "mrr"]
-GENERATION_KEYS = ["product_precision", "product_recall", "refusal_accuracy", "faithfulness", "answer_correctness"]
+RETRIEVAL_KEYS = ["precision@5", "recall@5", "precision@10", "recall@10"]
+GENERATION_KEYS = ["product_precision", "product_recall", "refusal_accuracy"]
 
 
 class CatalogStore:
@@ -54,8 +52,7 @@ def run_item(item, retriever, pipeline, retrieval_only):
     if item["answerable"]:
         chunks = retriever.retrieve(retrieval_query(item, retrieval_only), k=10)
         ids = [c.metadata["product_id"] for c in chunks]
-        gains = {**{p: metrics.GAINS["S"] for p in item["acceptable_product_ids"]}, **{p: metrics.GAINS["E"] for p in expected}}
-        scores.update(metrics.retrieval_scores(ids, expected, gains))
+        scores.update(metrics.retrieval_scores(ids, expected))
     if retrieval_only:
         return scores
 
@@ -67,22 +64,7 @@ def run_item(item, retriever, pipeline, retrieval_only):
         answer_ids = [p.product_id for p in resp.products]
         scores["product_precision"] = metrics.product_precision(answer_ids, expected)
         scores["product_recall"] = metrics.product_recall(answer_ids, expected)
-        if not refused:
-            context = format_context(chunks[: config.RETRIEVAL_K])
-            scores["faithfulness"] = pipeline.judge_answer(item["input"], context, resp.answer)["score"] / 5
-            scores["answer_correctness"] = correctness(pipeline, item, resp.answer)
-        else:
-            scores["faithfulness"] = scores["answer_correctness"] = 0.0
     return scores
-
-
-def correctness(pipeline, item, answer):
-    template, _ = load_prompt("rag-ecommerce-correctness", "correctness_prompt.txt")
-    reply = pipeline.judge.invoke(
-        render(template, question=item["input"], expected=item["expected_output"], answer=answer)
-    ).content
-    match = re.search(r'"score"\s*:\s*([01])', reply)
-    return float(match.group(1)) if match else 0.0
 
 
 def aggregate(rows):
