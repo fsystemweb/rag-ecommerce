@@ -6,6 +6,7 @@
 - [Demo](demo.md)
 - [Evaluation](evaluation.md)
 - [Evaluation report](report.md)
+- [Report after the fixes](report-after-fixes.md)
 - [Observability](observability.md)
 - [Glossary](glossary.md)
 - [FAQ](faq.md)

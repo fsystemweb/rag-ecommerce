@@ -2,6 +2,8 @@
 
 Last run: **2026-11-08**, Opik experiment `hybrid-k5-deepseek-ai/DeepSeek-V4-Flash-0731`. Full pipeline (not retrieval only) over the 120 golden items, hybrid search (dense + BM25), `k=5`, catalog of 2,000 products. The numbers are also saved in [`assets/eval-report.json`](assets/eval-report.json).
 
+> **Update:** recommendations 1, 2, 3 and 6 below were applied. See the [report after the fixes](report-after-fixes.md) for the new run next to these numbers.
+
 > The golden dataset is still a **draft** (see [Evaluation](evaluation.md)). Read the results as a baseline to improve on, not as a final grade.
 
 ## Models used
