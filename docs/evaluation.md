@@ -26,15 +26,13 @@ Example: 5 results, the user wanted products A and B, we returned `[A, x, B, y, 
 
 ## Results
 
-Retrieval only, golden items that are answerable, 2,000-product catalog:
+Last full run (120 items, hybrid search, k=5, generator `deepseek-ai/DeepSeek-V4-Flash-0731`, classifier `nvidia/Nemotron-3_5-Lightning`):
 
-The app uses a single retrieval: hybrid search (dense + BM25).
+| precision@5 | recall@5 | recall@10 | product_precision | product_recall | refusal_accuracy |
+|---|---|---|---|---|---|
+| 0.39 | 0.55 | 0.73 | 0.60 | 0.44 | 0.81 |
 
-| Configuration | precision@5 | recall@5 | Status |
-|---|---|---|---|
-| hybrid | - | - | needs Nebius key: `python -m src.evaluation.evaluator --retrieval-only` |
-
-The row is a command to fill in (the numbers are not invented). Generation metrics (product precision/recall, refusal accuracy) also need a key.
+The full report, with charts, a description of every metric, token usage and recommendations, is in [Evaluation report](report.md).
 
 ## Known limits
 

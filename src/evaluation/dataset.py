@@ -54,6 +54,17 @@ def catalog_ids() -> set[str]:
     return set(pd.read_parquet(DATA_DIR / "catalog.parquet", columns=["product_id"])["product_id"])
 
 
+def to_opik(item: dict) -> dict:
+    """Rename the keys Opik reserves: its "id" becomes "item_id", and the CSV "source" (esci/manual) becomes "golden_source"."""
+    row = {}
+    for k, v in item.items():
+        if k == "id":
+            continue
+        row["golden_source" if k == "source" else k] = v
+    row["item_id"] = item["id"]
+    return row
+
+
 def upload(items: list[dict]) -> int:
     """Add the items missing in Opik (matched by item id). Safe to repeat."""
     client = observability.client()
@@ -61,8 +72,7 @@ def upload(items: list[dict]) -> int:
         raise RuntimeError("Opik is not configured (set OPIK_URL_OVERRIDE)")
     dataset = client.get_or_create_dataset(DATASET_NAME)
     existing = {i.get("item_id") for i in dataset.get_items()}
-    # Opik uses "id" for its own ids, so ours is sent as "item_id"
-    new = [{**{k: v for k, v in i.items() if k != "id"}, "item_id": i["id"]} for i in items if i["id"] not in existing]
+    new = [to_opik(i) for i in items if i["id"] not in existing]
     if new:
         dataset.insert(new)
     return len(new)
