@@ -7,6 +7,7 @@
 - [Evaluation](evaluation.md)
 - [Evaluation report](report.md)
 - [Report after the fixes](report-after-fixes.md)
+- [Report: Qwen as generator](report-qwen-generator.md)
 - [Observability](observability.md)
 - [Glossary](glossary.md)
 - [FAQ](faq.md)
