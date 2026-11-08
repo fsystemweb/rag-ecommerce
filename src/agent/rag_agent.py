@@ -31,7 +31,7 @@ class Pipeline:
     def __init__(self, retriever, generator=None, classifier=None):
         self.retriever = retriever
         self.generator = generator or make_llm(config.GENERATOR_LLM)
-        self.classifier = classifier or make_llm(config.EVALUATOR_LLM)
+        self.classifier = classifier or make_llm(config.CLASSIFIER_LLM)
 
     # --- steps -------------------------------------------------------
     @track("classify", type="llm")

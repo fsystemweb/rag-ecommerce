@@ -27,7 +27,7 @@ A question makes **2 or 3 chat-LLM calls**, plus **1 embedding call**.
 
 | # | Step | Model | When | Purpose |
 |---|---|---|---|---|
-| 1 | Topic classifier | `EVALUATOR_LLM` (light) | Every question that passes the regex guardrails | Answers `PRODUCT_SEARCH` or `OFF_TOPIC`; off-topic questions stop here. |
+| 1 | Topic classifier | `CLASSIFIER_LLM` (light) | Every question that passes the regex guardrails | Answers `PRODUCT_SEARCH` or `OFF_TOPIC`; off-topic questions stop here. |
 | 2 | Rewrite | `GENERATOR_LLM` | Only when the request has chat history | Turns a follow-up ("¿y en negro?") into a standalone search query. |
 | - | Query embedding | embeddings model | Every question that reaches retrieval | Dense half of the hybrid search (an embedding call, not a chat call). |
 | 3 | Generate | `GENERATOR_LLM` | Every question that reaches it (streamed) | Writes the answer from the 5 retrieved products, or replies `NO_ANSWER`. |
@@ -117,7 +117,7 @@ Order: `download_data` → (`build_golden`, already done in the repo) → `sampl
 
 - **One product = one document.** A product is the natural unit users ask about, so each product is a single chunk (title, brand, color, description, bullets) with no splitting and no overlap. Very long descriptions are cut at 3000 characters.
 - **Hybrid search.** Embeddings understand meaning but miss exact terms (brands, models, sizes). BM25 finds exact terms but not synonyms. Together they cover both.
-- **At least 5 chunks (`k >= 5`).** A single hit makes the answer depend on one possibly wrong match; five distinct products let the model compare and recommend. The config refuses values below 5.
+- **At least 5 chunks (`k >= 5`, default 10).** A single hit makes the answer depend on one possibly wrong match; five distinct products let the model compare and recommend. The config refuses values below 5.
 - **No LLM rerank, no judge.** Both were extra LLM calls per question. The hybrid order is used as is, and the generator is told to use only the products it is given. The tradeoff is that nothing checks the answer for invented details afterwards.
 
 ## Guardrails
@@ -129,7 +129,7 @@ Code: `src/agent/guardrails.py`. Most checks are **not a classifier**: they are 
 | Before everything | `clean_question` | Strips control characters, collapses spaces and cuts the question to 500 characters. |
 | Before everything | `looks_like_injection` | Matches the question against about 7 regexes in Spanish and English ("ignore previous instructions", "system prompt", "act as", "jailbreak" / "DAN"...). A match returns the fixed refusal and no LLM is called. |
 | Before the prompt | `sanitize_product_text` | Removes any `<products>` tag from catalog text, so a product description cannot close the `<products>` block and inject instructions. |
-| After the rules | topic classifier | A light LLM (`EVALUATOR_LLM`, prompt `classifier_prompt.txt`) reads the question and the last turns of the chat and answers `PRODUCT_SEARCH` or `OFF_TOPIC` (weather, news, jokes, code, price, stock, delivery, returns...). `OFF_TOPIC` returns the refusal before retrieval and generation, so nothing else is spent. Any other reply lets the question through (fail open), because the generator rules are still behind it. |
+| After the rules | topic classifier | A light LLM (`CLASSIFIER_LLM`, prompt `classifier_prompt.txt`) reads the question and the last turns of the chat and answers `PRODUCT_SEARCH` or `OFF_TOPIC` (weather, news, jokes, code, price, stock, delivery, returns...). `OFF_TOPIC` returns the refusal before retrieval and generation, so nothing else is spent. Any other reply lets the question through (fail open), because the generator rules are still behind it. |
 | After generation | `leaks_prompt` | A canary string (`CANARY-7f3a91`) is hidden in the system prompt. If it shows up in an answer, the prompt leaked and the answer is replaced with a refusal. |
 | After generation | `NO_ANSWER` | If the generator answers `NO_ANSWER`, the user gets the fixed no-match message (`NO_MATCH`): no product in the catalog matches. |
 | After retrieval | empty result | If nothing is retrieved, the user gets the same no-match message. |

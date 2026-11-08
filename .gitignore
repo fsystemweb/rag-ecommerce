@@ -123,3 +123,6 @@ solutions/*/model_data.json
 
 # Evaluation outputs
 src/evaluation/results/
+
+# keep the example env file (no secrets in it)
+!.env.example

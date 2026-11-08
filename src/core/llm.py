@@ -7,7 +7,13 @@ from src.core import config
 
 def make_llm(model: str) -> ChatOpenAI:
     return ChatOpenAI(
-        model=model, base_url=config.NEBIUS_API, api_key=config.NEBIUS_API_KEY, temperature=0, timeout=30, max_retries=2
+        model=model,
+        base_url=config.NEBIUS_API,
+        api_key=config.NEBIUS_API_KEY,
+        temperature=0,
+        timeout=120,
+        max_retries=2,
+        stream_usage=True,
     )
 
 

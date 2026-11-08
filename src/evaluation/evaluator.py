@@ -2,7 +2,7 @@
 
 Usage:
   python -m src.evaluation.evaluator --retrieval-only   # embeddings only (cheaper)
-  python -m src.evaluation.evaluator [--k 5] [--limit N] [--generator MODEL] [--floor recall@5=0.4]
+  python -m src.evaluation.evaluator [--k 10] [--limit N] [--generator MODEL] [--floor recall@5=0.4]
 
 Both modes make paid Nebius calls (without --retrieval-only, also classifier, rewrite and generation). With OPIK_URL_OVERRIDE set,
 the run is also logged as an Opik experiment. Exit code 1 if a --floor is not met.
@@ -90,7 +90,7 @@ def print_table(table, keys):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--k", type=int, default=5)
+    ap.add_argument("--k", type=int, default=config.RETRIEVAL_K)
     ap.add_argument("--limit", type=int)
     ap.add_argument("--generator", default=config.GENERATOR_LLM)
     ap.add_argument("--retrieval-only", action="store_true")
