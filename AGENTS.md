@@ -4,7 +4,7 @@
 
 ## Commands
 - Setup: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements-dev.txt`, then `cp .env.example .env` and set `NEBIUS_API_KEY`
-- Data (one time): `python -m scripts.download_data` then `python -m scripts.sample_catalog --size 10000`
+- Data (one time): `python -m scripts.download_data` then `python -m scripts.sample_catalog --size 2000`
 - Ingest (paid embeddings): `python -m src.ingestion [--limit N] [--yes]`
 - API: `python main.py` (port 8000)
 - Chat page: `python -m http.server 5500`, open `http://localhost:5500/public/`

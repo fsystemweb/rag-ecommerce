@@ -13,7 +13,7 @@ Labels: **E** exact (what the user wants), **S** substitute (acceptable alternat
 
 ```bash
 python -m scripts.download_data                 # ~1 GB, once
-python -m scripts.sample_catalog --size 10000   # same seed gives the same catalog
+python -m scripts.sample_catalog --size 2000   # same seed gives the same catalog
 ```
 
 The sampler keeps only Spanish products with a title, always includes the E/S products of the golden-dataset queries, and fills the rest at random. Output: `data/catalog.parquet` and `data/queries.parquet`. **Nothing from the dataset is committed.**
