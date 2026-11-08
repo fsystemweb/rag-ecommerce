@@ -136,8 +136,10 @@ def main(argv=None):
     table = aggregate(rows)
     print(f"\nexperiment: {name}  items: {len(items)}")
     print_table(table, keys)
-    (config.ROOT / "src" / "evaluation" / "results").mkdir(exist_ok=True)
-    (config.ROOT / "src" / "evaluation" / "results" / f"{name}.json").write_text(json.dumps(table, indent=2))
+    results = config.ROOT / "src" / "evaluation" / "results"
+    results.mkdir(exist_ok=True)
+    # model names contain "/" (e.g. deepseek-ai/DeepSeek-V4), which is not valid inside a file name
+    (results / f"{name.replace('/', '_')}.json").write_text(json.dumps(table, indent=2))
     failed = check_floors(table, args.floor)
     if failed:
         print("FAILED floors:", *failed, sep="\n  ")
