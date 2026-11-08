@@ -1,0 +1,99 @@
+{
+ "by_type": {
+  "typo": {
+   "precision@5": 0.3,
+   "recall@5": 0.5138888888888888,
+   "precision@10": 0.18333333333333335,
+   "recall@10": 0.611111111111111,
+   "refusal_accuracy": 0.5,
+   "product_precision": 0.2916666666666667,
+   "product_recall": 0.23611111111111108,
+   "n": 6
+  },
+  "ALL": {
+   "precision@5": 0.3888888888888889,
+   "recall@5": 0.5468518518518519,
+   "precision@10": 0.2633333333333333,
+   "recall@10": 0.7251851851851852,
+   "refusal_accuracy": 0.8083333333333333,
+   "product_precision": 0.5974074074074074,
+   "product_recall": 0.4422222222222222,
+   "n": 120
+  },
+  "exact": {
+   "precision@5": 0.40588235294117647,
+   "recall@5": 0.6264705882352941,
+   "precision@10": 0.27058823529411763,
+   "recall@10": 0.8083333333333333,
+   "refusal_accuracy": 0.6764705882352942,
+   "product_precision": 0.598529411764706,
+   "product_recall": 0.40980392156862744,
+   "n": 34
+  },
+  "attribute": {
+   "precision@5": 0.44,
+   "recall@5": 0.6166666666666667,
+   "precision@10": 0.3,
+   "recall@10": 0.77,
+   "refusal_accuracy": 0.8,
+   "product_precision": 0.6244444444444445,
+   "product_recall": 0.5655555555555556,
+   "n": 15
+  },
+  "brand": {
+   "precision@5": 0.44000000000000006,
+   "recall@5": 0.6022222222222222,
+   "precision@10": 0.30666666666666664,
+   "recall@10": 0.8666666666666667,
+   "refusal_accuracy": 0.9333333333333333,
+   "product_precision": 0.7777777777777778,
+   "product_recall": 0.48666666666666664,
+   "n": 15
+  },
+  "broad": {
+   "precision@5": 0.4428571428571429,
+   "recall@5": 0.46785714285714286,
+   "precision@10": 0.3,
+   "recall@10": 0.6476190476190476,
+   "refusal_accuracy": 0.7142857142857143,
+   "product_precision": 0.55,
+   "product_recall": 0.40238095238095234,
+   "n": 14
+  },
+  "follow_up": {
+   "precision@5": 0.0,
+   "recall@5": 0.0,
+   "precision@10": 0.016666666666666666,
+   "recall@10": 0.08333333333333333,
+   "refusal_accuracy": 0.8333333333333334,
+   "product_precision": 0.4888888888888889,
+   "product_recall": 0.5055555555555555,
+   "n": 6
+  },
+  "unanswerable": {
+   "refusal_accuracy": 1.0,
+   "n": 18
+  },
+  "adversarial": {
+   "refusal_accuracy": 1.0,
+   "n": 12
+  }
+ },
+ "models": {
+  "deepseek-ai/DeepSeek-V4-Flash-0731": {
+   "calls": 89,
+   "prompt": 514,
+   "completion": 628,
+   "reasoning": 580,
+   "p50_ms": 3376.897
+  },
+  "nvidia/Nemotron-3_5-Lightning": {
+   "calls": 110,
+   "prompt": 21068,
+   "completion": 64422,
+   "reasoning": 63789,
+   "p50_ms": 2108.6605
+  }
+ },
+ "note": "Opik experiment hybrid-k5-deepseek-ai/DeepSeek-V4-Flash-0731 (id 01a1baf0-a672-72c9-981e-1addbe7ad7a9), 2026-11-08. models = LLM spans with usage recorded; generator spans are streamed so most have no usage."
+}

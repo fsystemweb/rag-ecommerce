@@ -31,4 +31,4 @@ npx docsify-cli serve docs           # these docs
 - **503 "vector store is empty"**: run `python -m src.ingestion`.
 - **`ModuleNotFoundError: src`**: run modules from the repo root with `python -m`.
 - **Chat page says "Failed to fetch"**: the API is not running on port 8000.
-- **Ingestion stopped halfway**: run it again, finished products are skipped.
+- **Ingestion stopped halfway or `429` errors**: embeddings are sent in batches of 100 with retries and backoff to avoid the rate limit (see [Data](data.md)). Run it again, finished products are skipped.
