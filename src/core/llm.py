@@ -11,7 +11,7 @@ def make_llm(model: str) -> ChatOpenAI:
         base_url=config.NEBIUS_API,
         api_key=config.NEBIUS_API_KEY,
         temperature=0,
-        timeout=30,
+        timeout=120,
         max_retries=2,
         stream_usage=True,
     )

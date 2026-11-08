@@ -18,7 +18,7 @@ NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY", "")
 NEBIUS_API = os.getenv("NEBIUS_API", "https://api.studio.nebius.com/v1/")
 GENERATOR_LLM = os.getenv("GENERATOR_LLM", "meta-llama/Llama-3.3-70B-Instruct")
 # Topic classifier: a one-word answer, so use a small non-reasoning model (a reasoning model wastes ~580 tokens and ~2 s)
-CLASSIFIER_LLM = os.getenv("CLASSIFIER_LLM", "meta-llama/Meta-Llama-3.1-8B-Instruct")
+CLASSIFIER_LLM = os.getenv("CLASSIFIER_LLM", "Qwen/Qwen3-30B-A3B-Instruct-2507")
 EMBEDDINGS_MODEL = os.getenv("EMBEDDINGS_MODEL", "BAAI/bge-multilingual-gemma2")
 EMBEDDINGS_PRICE_PER_1M = float(os.getenv("EMBEDDINGS_PRICE_PER_1M", "0.01"))  # USD, check Nebius pricing
 DATA_DIR = _path("DATA_DIR", "data")
