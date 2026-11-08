@@ -14,7 +14,7 @@ Labels: **E** exact, **S** substitute, **C** complement, **I** irrelevant.
 
 ```bash
 python -m scripts.download_data                 # ~1 GB, once
-python -m scripts.sample_catalog --size 10000   # same seed -> same catalog
+python -m scripts.sample_catalog --size 2000   # same seed -> same catalog
 ```
 
 Outputs `data/catalog.parquet` and `data/queries.parquet` (labels only for the sampled products).

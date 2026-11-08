@@ -26,7 +26,7 @@ Example: 5 results, the user wanted products A and B, we returned `[A, x, B, y, 
 
 ## Results
 
-Retrieval only, golden items that are answerable, 10,000-product catalog:
+Retrieval only, golden items that are answerable, 2,000-product catalog:
 
 The app uses a single retrieval: hybrid search (dense + BM25).
 

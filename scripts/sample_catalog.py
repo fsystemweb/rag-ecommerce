@@ -1,6 +1,6 @@
 """Build a small, repeatable Spanish catalog from the ESCI dataset.
 
-Usage: python -m scripts.sample_catalog --size 10000 [--seed 42]
+Usage: python -m scripts.sample_catalog --size 2000 [--seed 42]
 
 Outputs data/catalog.parquet and data/queries.parquet.
 Products labeled E or S for the golden queries are always kept
@@ -47,7 +47,7 @@ def report(catalog, queries):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--size", type=int, default=10000)
+    ap.add_argument("--size", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
 

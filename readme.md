@@ -44,7 +44,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 cp .env.example .env            # set NEBIUS_API_KEY
 python -m scripts.download_data # ~1 GB, once
-python -m scripts.sample_catalog --size 10000
+python -m scripts.sample_catalog --size 2000
 python -m src.ingestion         # embeds the catalog (paid, asks to confirm)
 python main.py              # API on :8000
 python -m http.server 5500      # chat page: http://localhost:5500/public/
