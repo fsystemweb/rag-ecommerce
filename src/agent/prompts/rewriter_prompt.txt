@@ -1,4 +1,5 @@
-Rewrite the user's last message as one standalone product search query, using the conversation to resolve references like "and in black?" or "the cheaper one".
+Rewrite the user's last message as one standalone product search query, using the conversation (if any) to resolve references like "and in black?" or "the cheaper one".
+Fix spelling mistakes and typos in the product words. Do not add words the user did not mean.
 Keep the language of the user. Reply only with the query, nothing else.
 
 Conversation:

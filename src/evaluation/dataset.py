@@ -12,8 +12,8 @@ import pandas as pd
 from src.core.config import DATA_DIR, ROOT
 from src.observability import tracer as observability
 
-GOLDEN_CSV = ROOT / "src" / "evaluation" / "datasets" / "golden_es.csv"
-DATASET_NAME = "rag-ecommerce-golden"
+GOLDEN_CSV = ROOT / "src" / "evaluation" / "datasets" / "golden_es_v2.csv"
+DATASET_NAME = "rag-ecommerce-golden-v2"
 TYPES = {"exact", "attribute", "broad", "brand", "follow_up", "typo", "unanswerable", "adversarial"}
 
 
