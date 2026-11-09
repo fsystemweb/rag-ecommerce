@@ -4,6 +4,9 @@
 
 `src/evaluation/datasets/golden_es_v2.csv`: 117 items with an input, expected products (ESCI label E), acceptable products (S) and a reference answer.
 
+[DEPRECATED] - `src/evaluation/datasets/golden_es.csv`: 120 items with an input, expected products (ESCI label E), acceptable products (S) and a reference answer.
+
+
 | Type | Items | Notes |
 |---|---|---|
 | exact / attribute / broad / brand | 78 | real ESCI queries |
