@@ -2,7 +2,7 @@
 
 ## The golden dataset
 
-`src/evaluation/datasets/golden_es_v2.csv`: 117 items with an input, expected products (ESCI label E), acceptable products (S) and a reference answer.
+`src/evaluation/datasets/golden_es_v2.csv`: 111 items with an input, expected products (ESCI label E), acceptable products (S) and a reference answer.
 
 [DEPRECATED] - `src/evaluation/datasets/golden_es.csv`: 120 items with an input, expected products (ESCI label E), acceptable products (S) and a reference answer.
 
@@ -11,7 +11,6 @@
 |---|---|---|
 | exact / attribute / broad / brand | 78 | real ESCI queries |
 | typo | 6 | ESCI queries with swapped letters |
-| follow_up | 6 | "¿Y en negro?" with history |
 | unanswerable | 18 | price, stock, delivery, returns, other topics |
 | adversarial | 12 | prompt injection, system-prompt leak |
 
