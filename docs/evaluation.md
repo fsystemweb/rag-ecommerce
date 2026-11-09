@@ -32,9 +32,9 @@ Last full run (120 items, hybrid search, k=5, generator `deepseek-ai/DeepSeek-V4
 |---|---|---|---|---|---|
 | 0.39 | 0.55 | 0.73 | 0.60 | 0.44 | 0.81 |
 
-After the fixes (classifier model, usage capture, fewer refusals, k=10 with 5 recommendations) refusal_accuracy went from 0.81 to 0.93 and product_recall from 0.44 to 0.62, see [Report after the fixes](report-after-fixes.md).
+After the fixes (classifier model, usage capture, fewer refusals, k=10 with 5 recommendations) refusal_accuracy went from 0.81 to 0.93 and product_recall from 0.44 to 0.62, see [experiment 2 in the evaluation report](report.md#experiment-2-after-the-fixes).
 
-The full first report, with charts, a description of every metric, token usage and recommendations, is in [Evaluation report](report.md).
+The full evaluation report, with every experiment, charts, a description of every metric, token usage and recommendations, is in [Evaluation report](report.md).
 
 ## Known limits
 
