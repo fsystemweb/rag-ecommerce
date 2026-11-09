@@ -105,7 +105,7 @@ class Pipeline:
 
     @staticmethod
     def _products_in(answer, chunks) -> list[ProductRef]:
-        mentioned = set(re.findall(r"\[([^\]\s]+)\]", answer))
+        mentioned = set(re.findall(r"\[\s*([^\]\s]+)\s*\]", answer))  # also "[ B07XYZ ]"
         seen, out = set(), []
         for c in chunks:
             pid = c.metadata["product_id"]
