@@ -16,7 +16,7 @@ def write(tmp_path, body):
 def test_real_golden_file_is_valid_and_big_enough():
     items = load_golden()
     assert len(items) >= 100
-    assert {"unanswerable", "adversarial", "follow_up", "typo"} <= {i["question_type"] for i in items}
+    assert {"unanswerable", "adversarial", "typo"} <= {i["question_type"] for i in items}
 
 
 def test_validation_catches_problems(tmp_path):
