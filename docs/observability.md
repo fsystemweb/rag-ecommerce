@@ -22,8 +22,6 @@ The three prompts are versioned in the prompt library. Edit one in Opik to chang
 
 The golden dataset (120 items) is uploaded as `rag-ecommerce-golden`. Opik reserves `id` and `source`, so they are stored as `item_id` and `golden_source`.
 
-![Datasets](assets/screens/opik-datasets.png)
-
 ![Dataset items](assets/screens/opik-dataset-items.png)
 
 ## Experiments
