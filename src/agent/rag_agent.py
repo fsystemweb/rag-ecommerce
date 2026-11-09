@@ -19,11 +19,13 @@ from src.observability.tracer import track
 
 log = logging.getLogger("rag")
 HISTORY_TURNS = 6  # last turns used for the rewrite
+PRODUCT_CHARS = 600  # max characters of each product shown to the generator
 
 
 def format_context(chunks) -> str:
     return "\n".join(
-        f'<product id="{c.metadata["product_id"]}">\n{guardrails.sanitize_product_text(c.text)}\n</product>' for c in chunks
+        f'<product id="{c.metadata["product_id"]}">\n{guardrails.sanitize_product_text(c.text)[:PRODUCT_CHARS]}\n</product>'
+        for c in chunks
     )
 
 
@@ -45,9 +47,7 @@ class Pipeline:
 
     @track("rewrite", type="llm")
     def rewrite(self, question, history) -> str:
-        if not history:
-            return question
-        text = "\n".join(f"{t.role}: {t.content}" for t in history[-HISTORY_TURNS:])
+        text = "\n".join(f"{t.role}: {t.content}" for t in history[-HISTORY_TURNS:]) or "(none)"
         template, _ = load_prompt("rag-ecommerce-rewriter", "rewriter_prompt.txt")
         out = self.generator.invoke(render(template, history=text, question=question), config=observability.llm_config()).content
         return out.strip() or question

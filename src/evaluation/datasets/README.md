@@ -1,6 +1,13 @@
-# Golden dataset (`golden_es.csv`)
+# Golden dataset (`golden_es_v2.csv`)
 
-120 items, Spanish. Fixed reference for every evaluation run.
+117 items, Spanish. Fixed reference for every evaluation run. `golden_es.csv` is v1 (120 items), kept to compare old runs.
+
+## Changes in v2
+
+- Removed q039 (E labels unrelated to the query), q018 (no Orbea or e-bike in the catalog) and u007 (a product search, not out of scope).
+- f001 (pink) and f002 (white metal bed): E labels re-checked against the catalog color and type.
+- Follow-up histories: the assistant turn now names real products instead of a placeholder.
+- Opik dataset is `rag-ecommerce-golden-v2`.
 
 | Column | Meaning |
 |---|---|

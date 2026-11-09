@@ -19,7 +19,8 @@ INJECTION_PATTERNS = [
     r"(system|developer)\s*prompt",
     r"prompt\s+del\s+sistema",
     r"(reveal|show|print|muestra|revela|repite)\s+.{0,30}(instructions|instrucciones|rules|reglas|prompt)",
-    r"(you are now|ahora eres|act as|actúa como|finge ser|pretend to be)",
+    r"ignora\s+el\s+cat[aá]logo",
+    r"(you are now|ahora eres|eres ahora|act as|actúa como|finge ser|pretend to be)",
     r"jailbreak|do anything now|\bDAN\b",
 ]
 
