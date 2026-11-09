@@ -53,3 +53,14 @@ def test_config_rejects_k_below_5(monkeypatch):
         importlib.reload(config)
     monkeypatch.setenv("RETRIEVAL_K", "5")
     importlib.reload(config)
+
+
+def test_bm25_short_uses_only_title_and_brand(store, monkeypatch):
+    monkeypatch.setattr(config, "RETRIEVAL_MIN_SCORE", -1.0)
+    monkeypatch.setattr(config, "BM25_FIELDS", "short")
+    r = Retriever(store)
+    r._load_bm25()
+    assert r._bm25.corpus_size == len(r._ids)
+    res = r.retrieve("Anker", k=5)
+    assert res[0].metadata["product_id"] == "P7" and res[0].bm25_rank == 1
+    assert not any(c.bm25_rank for c in r.retrieve("Título", k=5))  # header text is not indexed

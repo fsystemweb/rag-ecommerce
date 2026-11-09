@@ -1,6 +1,6 @@
 # Spec: BM25 on title and brand (hybrid retrieval)
 
-**Status:** Draft for review. No code changes or evaluator runs performed.
+**Status:** Implemented behind `BM25_FIELDS` (default `full`). Evaluator runs pending.
 
 ## Goal
 

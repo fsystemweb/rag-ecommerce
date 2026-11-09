@@ -51,7 +51,11 @@ class Retriever:
     def _load_bm25(self):
         data = self.store.get(include=["documents", "metadatas"])
         self._ids, self._texts, self._metas = data["ids"], data["documents"], data["metadatas"]
-        self._bm25 = BM25Okapi([tokenize(t) for t in self._texts])
+        if config.BM25_FIELDS == "short":  # title + brand only, from metadata (no re-ingestion)
+            corpus = [f"{m.get('title') or ''} {m.get('brand') or ''}" for m in self._metas]
+        else:
+            corpus = self._texts
+        self._bm25 = BM25Okapi([tokenize(t) for t in corpus])
 
     def _dense(self, query, where):
         res = self.store.similarity_search_with_score(query, k=POOL, filter=where)

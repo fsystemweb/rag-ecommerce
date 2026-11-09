@@ -25,9 +25,12 @@ DATA_DIR = _path("DATA_DIR", "data")
 VECTOR_STORE_DIR = _path("VECTOR_STORE_DIR", "data/chroma")
 RETRIEVAL_K = int(os.getenv("RETRIEVAL_K", "10"))
 RETRIEVAL_MIN_SCORE = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2"))
+BM25_FIELDS = os.getenv("BM25_FIELDS", "full")  # full = whole product text, short = title + brand only
 OPIK_URL_OVERRIDE = os.getenv("OPIK_URL_OVERRIDE", "")
 OPIK_PROJECT_NAME = os.getenv("OPIK_PROJECT_NAME", "rag-ecommerce")
 
 # Fail early: answering from fewer than 5 products is not allowed.
+if BM25_FIELDS not in ("full", "short"):
+    raise ValueError("BM25_FIELDS must be full or short")
 if RETRIEVAL_K < 5:
     raise ValueError("RETRIEVAL_K must be 5 or more")
