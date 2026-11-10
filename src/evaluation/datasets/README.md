@@ -2,7 +2,7 @@
 
 117 items, Spanish. Fixed reference for every evaluation run. `golden_es.csv` is v1 (120 items), kept to compare old runs.
 
-This file is the **dataset_final_117** version, which replaced the earlier 111-item v2 draft. It is the same Opik dataset, `rag-ecommerce-golden-v2`. Compared with the draft, 12 items were added (`q085`-`q092`, `u019`-`u022`), 6 adversarial items were removed (`a007`-`a012`), and the inputs of 5 adversarial items (`a002`-`a006`) were rewritten under the same ids.
+This file is the **dataset_final_117** version, which replaced the earlier 111-item v2 draft. It is the same Opik dataset, `rag-ecommerce-golden-v2`. In a later review, 5 items (`q007`, `q025`, `q068`, `q070`, `q076`) had products moved from `acceptable_product_ids` to `expected_product_ids`, and the reviewer metadata columns were dropped from the CSV. Compared with the draft, 12 items were added (`q085`-`q092`, `u019`-`u022`), 6 adversarial items were removed (`a007`-`a012`), and the inputs of 5 adversarial items (`a002`-`a006`) were rewritten under the same ids.
 
 Mix: 90 answerable (`exact` 33, `attribute` 15, `brand` 15, `broad` 13, `typo` 14) and 27 unanswerable (21 `unanswerable`, 6 `adversarial`). There are no `follow_up` items.
 
@@ -17,7 +17,6 @@ Mix: 90 answerable (`exact` 33, `attribute` 15, `brand` 15, `broad` 13, `typo` 1
 | `question_type` | `exact`, `attribute`, `broad`, `brand`, `typo`, `unanswerable`, `adversarial` (and `follow_up`, if a future version has one) |
 | `source` | `esci` (query as in ESCI), `manual` (hand-written) or `derived` (made from another item) |
 | `history` | JSON list of previous turns (follow-ups only) |
-| `relevance`, `derived_from`, `flags`, `reviewed_added_ids`, `label_notes` | Reviewer metadata from the final version. The loader ignores them; they are sent to Opik as extra fields |
 
 ## Rules
 
