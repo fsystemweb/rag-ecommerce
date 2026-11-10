@@ -83,14 +83,31 @@ class FakeDataset:
 
 
 def test_sync_deletes_items_removed_from_csv_and_inserts_new_ones():
-    remote = FakeDataset([{"id": "u1", "item_id": "q1"}, {"id": "u2", "item_id": "f001"}])
+    remote = FakeDataset([{"id": "u1", "item_id": "q1", "input": "a"}, {"id": "u2", "item_id": "f001", "input": "x"}])
     deleted, inserted = sync(remote, [{"id": "q1", "input": "a"}, {"id": "q2", "input": "b"}])
     assert (deleted, inserted) == (1, 1)
     assert remote.deleted == ["u2"]
     assert [i["item_id"] for i in remote.inserted] == ["q2"]
 
 
+def test_sync_replaces_items_edited_under_the_same_id():
+    remote = FakeDataset([{"id": "u1", "item_id": "a002", "input": "old text"}])
+    deleted, inserted = sync(remote, [{"id": "a002", "input": "new text"}])
+    assert (deleted, inserted) == (1, 1)
+    assert remote.deleted == ["u1"]
+    assert remote.inserted[0]["item_id"] == "a002" and remote.inserted[0]["input"] == "new text"
+
+
 def test_sync_is_a_no_op_when_already_in_sync():
-    remote = FakeDataset([{"id": "u1", "item_id": "q1"}])
+    remote = FakeDataset([{"id": "u1", "item_id": "q1", "input": "a"}])
     assert sync(remote, [{"id": "q1", "input": "a"}]) == (0, 0)
     assert remote.deleted == [] and remote.inserted == []
+
+
+def test_check_item_reports_missing_fields():
+    from src.evaluation.evaluator import check_item
+
+    with pytest.raises(ValueError, match="x1.*answerable"):
+        check_item({"item_id": "x1", "input": "q", "question_type": "exact", "expected_product_ids": []})
+    ok = check_item({"input": "q", "answerable": False, "question_type": "exact", "expected_product_ids": []})
+    assert ok["history"] == []

@@ -65,19 +65,25 @@ def to_opik(item: dict) -> dict:
     return row
 
 
-def sync(dataset, items: list[dict]) -> tuple[int, int]:
-    """Make the Opik dataset match the local items (matched by item id). Safe to repeat.
+def _same(remote: dict, local: dict | None) -> bool:
+    """True if the remote row has the same values as the local item for every field we send."""
+    return local is not None and all(remote.get(k) == v for k, v in local.items())
 
-    Remote items whose id is no longer in the CSV are deleted, so the evaluator never meets an item it cannot find.
-    Returns (deleted, inserted).
+
+def sync(dataset, items: list[dict]) -> tuple[int, int]:
+    """Make the Opik dataset match the local items. Safe to repeat.
+
+    A remote row is kept only if its item id is in the CSV and its content is the same. Rows that were removed
+    from the CSV, or edited under the same id, are deleted, and the local version is inserted. So the evaluator
+    never meets an item it cannot find, or an old version of one. Returns (deleted, inserted).
     """
-    local_ids = {i["id"] for i in items}
+    local = {i["id"]: to_opik(i) for i in items}
     remote = dataset.get_items()
-    stale = [r["id"] for r in remote if r.get("item_id") not in local_ids]
+    kept = {r.get("item_id") for r in remote if _same(r, local.get(r.get("item_id")))}
+    stale = [r["id"] for r in remote if r.get("item_id") not in kept]
     if stale:
         dataset.delete(stale)
-    kept = {r.get("item_id") for r in remote if r.get("item_id") in local_ids}
-    new = [to_opik(i) for i in items if i["id"] not in kept]
+    new = [row for item_id, row in local.items() if item_id not in kept]
     if new:
         dataset.insert(new)
     return len(stale), len(new)

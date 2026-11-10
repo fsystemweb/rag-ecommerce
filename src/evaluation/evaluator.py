@@ -2,10 +2,12 @@
 
 Usage:
   python -m src.evaluation.evaluator --retrieval-only   # embeddings only (cheaper)
-  python -m src.evaluation.evaluator [--k 10] [--limit N] [--generator MODEL] [--floor recall@5=0.4]
+  python -m src.evaluation.evaluator [--k 10] [--limit N] [--generator MODEL] [--name NAME] [--floor recall@5=0.4]
 
-Both modes make paid Nebius calls (without --retrieval-only, also classifier, rewrite and generation). With OPIK_URL_OVERRIDE set,
-the run is also logged as an Opik experiment. Exit code 1 if a --floor is not met.
+Both modes make paid Nebius calls (without --retrieval-only, also classifier, rewrite and generation).
+With OPIK_URL_OVERRIDE set, it runs over the items of the Opik dataset, whatever it holds (sync it with
+`python -m src.evaluation.dataset --upload`), and logs the run as an Opik experiment with the generated answers.
+Without Opik it uses the local golden CSV. Exit code 1 if a --floor is not met.
 """
 
 import argparse
@@ -37,8 +39,24 @@ def retrieval_query(item, retrieval_only):
     return item["input"]
 
 
-def run_item(item, retriever, pipeline, retrieval_only):
-    """Return {metric: value} for one golden item (metrics that do not apply are left out)."""
+REQUIRED_FIELDS = ("input", "answerable", "question_type", "expected_product_ids")
+
+
+def check_item(item):
+    """Fail with a clear message if a dataset item lacks a field the evaluation needs. History is optional."""
+    missing = [f for f in REQUIRED_FIELDS if item.get(f) is None]
+    if missing:
+        ident = item.get("item_id") or item.get("id")
+        raise ValueError(f"dataset item {ident} is missing {missing}")
+    item.setdefault("history", [])
+    return item
+
+
+def run_item(item, retriever, pipeline, retrieval_only, output=None):
+    """Return {metric: value} for one golden item (metrics that do not apply are left out).
+
+    If `output` is a dict, it is filled with the generated answer and products so they can be logged.
+    """
     scores = {}
     expected = set(item["expected_product_ids"])
     if item["answerable"]:
@@ -50,6 +68,9 @@ def run_item(item, retriever, pipeline, retrieval_only):
 
     history = [Turn(**t) for t in item["history"]]
     resp = pipeline.ask(AskRequest(question=item["input"], history=history))
+    if output is not None:
+        output["answer"] = resp.answer
+        output["products"] = [f"{p.product_id}: {p.title}" for p in resp.products]
     refused = resp.answer in (guardrails.REFUSAL, guardrails.NO_MATCH)
     scores["refusal_accuracy"] = metrics.refusal_accuracy(refused, item["answerable"])
     if item["answerable"]:
@@ -93,6 +114,7 @@ def main(argv=None):
     ap.add_argument("--k", type=int, default=config.RETRIEVAL_K)
     ap.add_argument("--limit", type=int)
     ap.add_argument("--generator", default=config.GENERATOR_LLM)
+    ap.add_argument("--name", help="experiment name (default: built from the settings)")
     ap.add_argument("--retrieval-only", action="store_true")
     ap.add_argument("--floor", action="append", default=[], help="e.g. recall@5=0.4")
     args = ap.parse_args(argv)
@@ -100,24 +122,19 @@ def main(argv=None):
 
     retriever = Retriever(get_store())
     pipeline = None if args.retrieval_only else Pipeline(retriever, make_llm(args.generator))
-    items = load_golden()[: args.limit]
     keys = RETRIEVAL_KEYS if args.retrieval_only else RETRIEVAL_KEYS + GENERATION_KEYS
-    name = f"hybrid-k{args.k}-{'retrieval' if args.retrieval_only else args.generator}"
+    name = args.name or f"hybrid-k{args.k}-{'retrieval' if args.retrieval_only else args.generator}"
 
     rows = []
-    by_id = {i["id"]: i for i in items}
 
     def task(dataset_item):
-        item_id = dataset_item.get("item_id", dataset_item.get("id"))
-        if item_id not in by_id:
-            raise KeyError(
-                f"Opik item {item_id} is not in the local golden CSV. "
-                "Sync the dataset with: python -m src.evaluation.dataset --upload"
-            )
-        item = by_id[item_id]
-        scores = run_item(item, retriever, pipeline, args.retrieval_only)
+        """Run one item. It works on whatever the dataset holds, so no local file has to match it."""
+        item = check_item(dict(dataset_item))
+        generated = {}
+        scores = run_item(item, retriever, pipeline, args.retrieval_only, generated)
         rows.append((item["question_type"], scores))
-        return {**scores, "question_type": item["question_type"]}
+        # the Opik experiment item shows this dict as the output: answer first, then the scores
+        return {**generated, **scores, "question_type": item["question_type"]}
 
     client = observability.client()
     if client is not None:
@@ -128,6 +145,7 @@ def main(argv=None):
             task=task,
             scoring_metrics=metrics.opik_metrics(keys),
             experiment_name=name,
+            nb_samples=args.limit,
             task_threads=1,
             experiment_config={
                 "search": "hybrid",
@@ -137,11 +155,11 @@ def main(argv=None):
             },
         )
     else:
-        for item in items:
-            task({"id": item["id"]})
+        for item in load_golden()[: args.limit]:
+            task(item)
 
     table = aggregate(rows)
-    print(f"\nexperiment: {name}  items: {len(items)}")
+    print(f"\nexperiment: {name}  items: {len(rows)}")
     print_table(table, keys)
     results = config.ROOT / "src" / "evaluation" / "results"
     results.mkdir(exist_ok=True)
