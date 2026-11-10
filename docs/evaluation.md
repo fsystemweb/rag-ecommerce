@@ -26,6 +26,13 @@ Example: 5 results, the user wanted products A and B, we returned `[A, x, B, y, 
 | recall@k | share of the relevant products found in top k | 2/2 = 1.0 |
 | refusal accuracy | refuses exactly when the item is unanswerable | 0 or 1 |
 
+### How items are scored
+
+`python -m src.evaluation.evaluator --threads 4` runs 4 items in parallel. In full mode the retrieval metrics are computed on the chunks the pipeline itself retrieved, with its rewritten query (no second search). `@10` metrics are reported only when `k >= 10`.
+
+- An answerable item stopped before retrieval (input guardrail or topic classifier) is left out of recall and precision and counted in `blocked_answerable`.
+- An answerable item that is refused (`REFUSAL` or `NO_MATCH`) is left out of `precision@k`, `product_precision` and `product_recall`; it counts in `refusal_accuracy`.
+
 ## Results
 
 Last full run (120 items, hybrid search, k=5, generator `deepseek-ai/DeepSeek-V4-Flash-0731`, classifier `nvidia/Nemotron-3_5-Lightning`):
