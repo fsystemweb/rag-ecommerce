@@ -254,7 +254,7 @@ Ordered by expected gain per effort. Change one thing at a time and re-run the e
 4. **Rerank.** Retrieve 20 candidates and rerank them (cross-encoder or a small LLM call) before passing 5 to the generator. Targets recall@5 (0.55 versus 0.73 at 10).
 5. **Handle typos.** Add a spelling-correction step (or use the rewriter) before BM25. Typos score 0.51 recall@5 and 0.24 product_recall.
 6. **Let the answer recommend more.** product_recall (0.44) trails product_precision (0.60): ask the generator for up to 3 products when several are relevant.
-7. **Evaluate follow-ups end to end.** Make the evaluator run the rewrite before measuring retrieval, so the follow-up rows are meaningful.
+7. **Evaluate follow-ups end to end.** Make the evaluator run the rewrite before measuring retrieval, so the follow-up rows are meaningful. (Done: retrieval is now scored on the pipeline's own search.)
 8. **Compare models.** Run `python -m src.evaluation.evaluator --generator <model>` with a non-reasoning generator and compare the experiments in Opik: quality, latency (p50 7.4 s now) and tokens side by side. (Done in [experiment 3](#experiment-3-qwen-as-generator).)
 9. **Review the golden dataset** (labels are ESCI, answers are templates) before drawing final conclusions.
 10. **Cache** repeated questions and the classifier result to avoid paying twice.

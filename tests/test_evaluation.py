@@ -1,4 +1,7 @@
 import pytest
+from langchain_core.embeddings import DeterministicFakeEmbedding
+from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
+from langchain_core.messages import AIMessage
 
 from src.evaluation import evaluator as run
 from src.evaluation.dataset import GOLDEN_CSV, load_golden, sync
@@ -34,9 +37,10 @@ def test_validation_checks_catalog(tmp_path):
 
 
 class FakeRetriever:
-    def retrieve(self, query, k=5):
+    def retrieve(self, query, k=5, where=None):
         class C:
-            metadata = {"product_id": "P1"}
+            text = "Auriculares Sony"
+            metadata = {"product_id": "P1", "title": "Auriculares Sony"}
 
         return [C()]
 
@@ -111,3 +115,89 @@ def test_check_item_reports_missing_fields():
         check_item({"item_id": "x1", "input": "q", "question_type": "exact", "expected_product_ids": []})
     ok = check_item({"input": "q", "answerable": False, "question_type": "exact", "expected_product_ids": []})
     assert ok["history"] == []
+
+
+# --- full mode: one search per item, scored on what the pipeline retrieved -------------------------------------------
+
+
+class CountingEmbeddings(DeterministicFakeEmbedding):
+    queries: list = []
+
+    def embed_query(self, text):
+        self.queries.append(text)
+        return super().embed_query(text)
+
+
+def reply(*texts):
+    return GenericFakeChatModel(messages=iter([AIMessage(content=t) for t in texts]))
+
+
+def full_item(answerable=True, expected=("P1",)):
+    return {"input": "auriculares sony", "answerable": answerable, "expected_product_ids": list(expected), "history": []}
+
+
+def test_full_mode_searches_once_and_scores_the_pipeline_chunks(tmp_path, monkeypatch, catalog_df):
+    from src.agent.rag_agent import Pipeline
+    from src.agent.retriever import Retriever
+    from src.ingestion.index import get_store, ingest
+
+    monkeypatch.setattr("src.core.config.VECTOR_STORE_DIR", tmp_path / "chroma")
+    emb = CountingEmbeddings(size=64)
+    store = get_store(emb)
+    ingest(catalog_df, store)
+    emb.queries.clear()
+    retriever = Retriever(store)
+
+    def make_pipeline(rec):
+        return Pipeline(rec, reply("auriculares sony", "Te recomiendo [P1] Sony"), reply("PRODUCT_SEARCH"))
+
+    out = {}
+    scores = run.run_item(full_item(), retriever, make_pipeline, False, out, k=10)
+    assert len(emb.queries) == 1  # only the pipeline's own search
+    assert scores["recall@5"] == 1.0 and scores["recall@10"] == 1.0
+    assert scores["product_precision"] == 1.0 and scores["blocked_answerable"] == 0.0
+    assert out["answer"].startswith("Te recomiendo")
+
+
+def test_k_below_10_reports_no_at_10_metrics():
+    from src.agent.rag_agent import Pipeline
+
+    def make_pipeline(rec):
+        return Pipeline(rec, reply("x", "[P1]"), reply("PRODUCT_SEARCH"))
+
+    scores = run.run_item(full_item(), FakeRetriever(), make_pipeline, False, k=5)
+    assert "recall@5" in scores and "recall@10" not in scores and "precision@10" not in scores
+
+
+def test_blocked_answerable_item_is_left_out_of_retrieval_metrics():
+    from src.agent.rag_agent import Pipeline
+
+    def make_pipeline(rec):
+        return Pipeline(rec, reply("x"), reply("OFF_TOPIC"))
+
+    scores = run.run_item(full_item(), FakeRetriever(), make_pipeline, False, k=10)
+    assert scores == {"refusal_accuracy": 0.0, "blocked_answerable": 1.0}
+
+
+def test_refused_answerable_item_counts_in_refusal_accuracy_not_precision():
+    from src.agent.rag_agent import Pipeline
+
+    def make_pipeline(rec):
+        return Pipeline(rec, reply("x", "NO_ANSWER"), reply("PRODUCT_SEARCH"))
+
+    scores = run.run_item(full_item(), FakeRetriever(), make_pipeline, False, k=10)
+    assert scores["refusal_accuracy"] == 0.0
+    assert not {"precision@5", "precision@10", "product_precision", "product_recall"} & scores.keys()
+
+
+def test_recording_retriever_keeps_the_chunks_and_query():
+    rec = run.RecordingRetriever(FakeRetriever())
+    chunks = rec.retrieve("hola", k=5)
+    assert rec.calls == [("hola", chunks)]
+
+
+def test_llm_timeout_comes_from_config(monkeypatch):
+    from src.core import llm
+
+    monkeypatch.setattr("src.core.config.LLM_TIMEOUT", 7.0)
+    assert llm.make_llm("m").request_timeout == 7.0

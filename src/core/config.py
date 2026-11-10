@@ -23,6 +23,7 @@ EMBEDDINGS_MODEL = os.getenv("EMBEDDINGS_MODEL", "BAAI/bge-multilingual-gemma2")
 EMBEDDINGS_PRICE_PER_1M = float(os.getenv("EMBEDDINGS_PRICE_PER_1M", "0.01"))  # USD, check Nebius pricing
 DATA_DIR = _path("DATA_DIR", "data")
 VECTOR_STORE_DIR = _path("VECTOR_STORE_DIR", "data/chroma")
+LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "120"))  # seconds per LLM call
 RETRIEVAL_K = int(os.getenv("RETRIEVAL_K", "10"))
 RETRIEVAL_MIN_SCORE = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2"))
 BM25_FIELDS = os.getenv("BM25_FIELDS", "full")  # full = whole product text, short = title + brand only
