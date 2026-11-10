@@ -1,7 +1,7 @@
 import pytest
 
 from src.evaluation import evaluator as run
-from src.evaluation.dataset import GOLDEN_CSV, load_golden
+from src.evaluation.dataset import GOLDEN_CSV, load_golden, sync
 from src.evaluation.test_metrics import *  # noqa: F401,F403  (run the metric checks under pytest too)
 
 HEADER = "id,input,expected_product_ids,acceptable_product_ids,expected_output,answerable,question_type,source,history\n"
@@ -61,3 +61,36 @@ def test_aggregate_and_floor():
 
 def test_golden_csv_path_exists():
     assert GOLDEN_CSV.exists()
+
+
+class FakeDataset:
+    """Stands in for an Opik dataset: rows have an Opik "id" and our "item_id"."""
+
+    def __init__(self, rows):
+        self.rows = rows
+        self.deleted = []
+        self.inserted = []
+
+    def get_items(self):
+        return list(self.rows)
+
+    def delete(self, ids):
+        self.deleted.extend(ids)
+        self.rows = [r for r in self.rows if r["id"] not in ids]
+
+    def insert(self, items):
+        self.inserted.extend(items)
+
+
+def test_sync_deletes_items_removed_from_csv_and_inserts_new_ones():
+    remote = FakeDataset([{"id": "u1", "item_id": "q1"}, {"id": "u2", "item_id": "f001"}])
+    deleted, inserted = sync(remote, [{"id": "q1", "input": "a"}, {"id": "q2", "input": "b"}])
+    assert (deleted, inserted) == (1, 1)
+    assert remote.deleted == ["u2"]
+    assert [i["item_id"] for i in remote.inserted] == ["q2"]
+
+
+def test_sync_is_a_no_op_when_already_in_sync():
+    remote = FakeDataset([{"id": "u1", "item_id": "q1"}])
+    assert sync(remote, [{"id": "q1", "input": "a"}]) == (0, 0)
+    assert remote.deleted == [] and remote.inserted == []
