@@ -65,17 +65,31 @@ def to_opik(item: dict) -> dict:
     return row
 
 
-def upload(items: list[dict]) -> int:
-    """Add the items missing in Opik (matched by item id). Safe to repeat."""
+def sync(dataset, items: list[dict]) -> tuple[int, int]:
+    """Make the Opik dataset match the local items (matched by item id). Safe to repeat.
+
+    Remote items whose id is no longer in the CSV are deleted, so the evaluator never meets an item it cannot find.
+    Returns (deleted, inserted).
+    """
+    local_ids = {i["id"] for i in items}
+    remote = dataset.get_items()
+    stale = [r["id"] for r in remote if r.get("item_id") not in local_ids]
+    if stale:
+        dataset.delete(stale)
+    kept = {r.get("item_id") for r in remote if r.get("item_id") in local_ids}
+    new = [to_opik(i) for i in items if i["id"] not in kept]
+    if new:
+        dataset.insert(new)
+    return len(stale), len(new)
+
+
+def upload(items: list[dict]) -> tuple[int, int]:
+    """Sync the Opik dataset with the local items. Returns (deleted, inserted)."""
     client = observability.client()
     if client is None:
         raise RuntimeError("Opik is not configured (set OPIK_URL_OVERRIDE)")
     dataset = client.get_or_create_dataset(DATASET_NAME)
-    existing = {i.get("item_id") for i in dataset.get_items()}
-    new = [to_opik(i) for i in items if i["id"] not in existing]
-    if new:
-        dataset.insert(new)
-    return len(new)
+    return sync(dataset, items)
 
 
 if __name__ == "__main__":
@@ -83,4 +97,5 @@ if __name__ == "__main__":
     kinds = pd.Series([i["question_type"] for i in data]).value_counts().to_dict()
     print(f"{len(data)} items valid. mix: {kinds}")
     if "--upload" in sys.argv:
-        print(f"uploaded {upload(data)} new items to Opik dataset {DATASET_NAME}")
+        deleted, inserted = upload(data)
+        print(f"Opik dataset {DATASET_NAME}: deleted {deleted} stale items, inserted {inserted} new items")

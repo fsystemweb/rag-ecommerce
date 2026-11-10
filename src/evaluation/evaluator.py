@@ -105,9 +105,16 @@ def main(argv=None):
     name = f"hybrid-k{args.k}-{'retrieval' if args.retrieval_only else args.generator}"
 
     rows = []
+    by_id = {i["id"]: i for i in items}
 
     def task(dataset_item):
-        item = next(i for i in items if i["id"] == dataset_item.get("item_id", dataset_item.get("id")))
+        item_id = dataset_item.get("item_id", dataset_item.get("id"))
+        if item_id not in by_id:
+            raise KeyError(
+                f"Opik item {item_id} is not in the local golden CSV. "
+                "Sync the dataset with: python -m src.evaluation.dataset --upload"
+            )
+        item = by_id[item_id]
         scores = run_item(item, retriever, pipeline, args.retrieval_only)
         rows.append((item["question_type"], scores))
         return {**scores, "question_type": item["question_type"]}

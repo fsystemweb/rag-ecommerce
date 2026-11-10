@@ -34,4 +34,5 @@
 ## Rules
 
 - Add an item: append a row, run `python -m src.evaluation.dataset` (validates ids against the catalog).
+- Sync Opik after editing the CSV: `python -m src.evaluation.dataset --upload`. It deletes Opik items removed from the CSV and inserts the new ones, so the evaluator's item ids match the file.
 - Never edit the set to make a score better. Changes go in a PR with the reason.
