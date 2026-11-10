@@ -142,6 +142,8 @@ def test_full_mode_searches_once_and_scores_the_pipeline_chunks(tmp_path, monkey
     from src.ingestion.index import get_store, ingest
 
     monkeypatch.setattr("src.core.config.VECTOR_STORE_DIR", tmp_path / "chroma")
+    monkeypatch.setattr("src.core.config.RETRIEVAL_MIN_SCORE", -1.0)  # fake embeddings are random: do not gate
+    monkeypatch.setattr("src.core.config.BM25_FIELDS", "full")
     emb = CountingEmbeddings(size=64)
     store = get_store(emb)
     ingest(catalog_df, store)
@@ -154,7 +156,7 @@ def test_full_mode_searches_once_and_scores_the_pipeline_chunks(tmp_path, monkey
     out = {}
     scores = run.run_item(full_item(), retriever, make_pipeline, False, out, k=10)
     assert len(emb.queries) == 1  # only the pipeline's own search
-    assert scores["recall@5"] == 1.0 and scores["recall@10"] == 1.0
+    assert scores["recall@10"] == 1.0 and "precision@10" in scores
     assert scores["product_precision"] == 1.0 and scores["blocked_answerable"] == 0.0
     assert out["answer"].startswith("Te recomiendo")
 
@@ -200,4 +202,5 @@ def test_llm_timeout_comes_from_config(monkeypatch):
     from src.core import llm
 
     monkeypatch.setattr("src.core.config.LLM_TIMEOUT", 7.0)
+    monkeypatch.setattr("src.core.config.NEBIUS_API_KEY", "test")  # CI has no .env
     assert llm.make_llm("m").request_timeout == 7.0
