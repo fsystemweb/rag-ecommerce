@@ -1,31 +1,30 @@
-"""Retrieval and answer metrics. Plain functions first, Opik wrappers at the end.
+"""The four evaluation metrics. Plain functions first, the Opik wrapper at the end.
 
-`retrieved` is a list of product ids in rank order (a product counts once).
-`relevant` is the set of expected product ids (ESCI label E).
+- recall@10          does the search find the products? (retrieved ids, ESCI label E)
+- product_precision  are the recommended products right? (answer ids, label E or S)
+- product_recall     did the answer include the right products? (answer ids, label E)
+- refusal_accuracy   does it refuse exactly when it should?
 """
 
-
-def dedupe(ids):
-    return list(dict.fromkeys(ids))
+NAMES = ["recall@10", "product_precision", "product_recall", "refusal_accuracy"]
 
 
-def precision_at_k(retrieved, relevant, k):
-    top = dedupe(retrieved)[:k]
-    return sum(p in relevant for p in top) / k
-
-
-def recall_at_k(retrieved, relevant, k):
-    if not relevant:
+def recall_at_k(retrieved, expected, k=10):
+    """Share of the expected products found in the first k retrieved (a product counts once)."""
+    if not expected:
         return 0.0
-    return sum(p in relevant for p in dedupe(retrieved)[:k]) / len(relevant)
+    top = list(dict.fromkeys(retrieved))[:k]
+    return sum(p in expected for p in top) / len(expected)
 
 
-def product_precision(answer_ids, expected):
-    answer_ids = dedupe(answer_ids)
-    return sum(p in expected for p in answer_ids) / len(answer_ids) if answer_ids else 0.0
+def product_precision(answer_ids, good):
+    """Share of the recommended products that are good (expected or acceptable)."""
+    answer_ids = set(answer_ids)
+    return sum(p in good for p in answer_ids) / len(answer_ids) if answer_ids else 0.0
 
 
 def product_recall(answer_ids, expected):
+    """Share of the expected products that the answer recommends."""
     return sum(p in expected for p in set(answer_ids)) / len(expected) if expected else 0.0
 
 
@@ -33,15 +32,7 @@ def refusal_accuracy(refused: bool, answerable: bool) -> float:
     return float(refused != answerable)
 
 
-def retrieval_scores(retrieved, relevant, ks=(5, 10)):
-    out = {}
-    for k in ks:
-        out[f"precision@{k}"] = precision_at_k(retrieved, relevant, k)
-        out[f"recall@{k}"] = recall_at_k(retrieved, relevant, k)
-    return out
-
-
-def opik_metrics(names):
+def opik_metrics(names=NAMES):
     """Wrap precomputed scores as Opik metrics (the task returns a dict of scores)."""
     from opik.evaluation.metrics import base_metric, score_result
 

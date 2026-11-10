@@ -1,20 +1,23 @@
 # Evaluation report
 
-All the runs below use the same **120 golden items**, the full pipeline (not retrieval only), hybrid search (dense + BM25) and a catalog of 2,000 products. Each experiment changes one part of the system, so the runs can be compared. The newest experiment is first.
+All the runs below use the full pipeline (not retrieval only), hybrid search (dense + BM25) and a catalog of 2,000 products. Experiments 1 to 3 use the **120 items of golden v1**; experiment 4 uses the **117 items of golden v2**. Each experiment changes one part of the system, so the runs can be compared. The newest experiment is first.
 
 > The golden dataset is still a **draft** (see [Evaluation](evaluation.md)). Read the results as a baseline to improve on, not as a final grade. The golden set was never edited to improve a score.
 
 ## Experiments at a glance
 
-| Experiment | Opik experiment | What changed | recall@5 | product_recall | refusal_accuracy |
-|---|---|---|---|---|---|
-| [3: Qwen as generator](#experiment-3-qwen-as-generator) (latest) | `hybrid-k10-Qwen/Qwen3-30B-A3B-Instruct-2507` | Generator is `Qwen/Qwen3-30B-A3B-Instruct-2507` (was DeepSeek) | 0.547 | 0.529 | 0.950 |
-| [2: After the fixes](#experiment-2-after-the-fixes) | `hybrid-k10-deepseek-ai/DeepSeek-V4-Flash-0731` | Non-reasoning classifier, usage capture, looser prompts, k=10 with 5 recommendations | 0.547 | 0.624 | 0.925 |
-| [1: Baseline](#experiment-1-baseline) | `hybrid-k5-deepseek-ai/DeepSeek-V4-Flash-0731` | First run, k=5 | 0.547 | 0.442 | 0.808 |
+| Experiment | Opik experiment | What changed | recall@10 | product_precision | product_recall | refusal_accuracy |
+|---|---|---|---|---|---|---|
+| [4: Four metrics, golden v2](#experiment-4-four-metrics-golden-v2) (latest) | `hybrid-k10-Qwen/Qwen3-30B-A3B-Instruct-2507` | Golden v2 (117 items), metrics cut to four, S products count as right | 0.787 | **0.710** | 0.675 | 0.949 |
+| [3: Qwen as generator](#experiment-3-qwen-as-generator) | `hybrid-k10-Qwen/Qwen3-30B-A3B-Instruct-2507` | Generator is `Qwen/Qwen3-30B-A3B-Instruct-2507` (was DeepSeek) | 0.725 | 0.433 | 0.529 | 0.950 |
+| [2: After the fixes](#experiment-2-after-the-fixes) | `hybrid-k10-deepseek-ai/DeepSeek-V4-Flash-0731` | Non-reasoning classifier, usage capture, looser prompts, k=10 with 5 recommendations | 0.725 | 0.542 | 0.624 | 0.925 |
+| [1: Baseline](#experiment-1-baseline) | `hybrid-k5-deepseek-ai/DeepSeek-V4-Flash-0731` | First run, k=5 | 0.725 | 0.597 | 0.442 | 0.808 |
 
-Experiment 1 is the baseline. Experiment 2 applies the first recommendations of experiment 1. Experiment 3 keeps the setup of experiment 2 and only swaps the generator.
+Experiment 1 is the baseline. Experiment 2 applies the first recommendations of experiment 1. Experiment 3 keeps the setup of experiment 2 and only swaps the generator. Experiment 4 keeps the same generator and pipeline, and changes **how we measure** (golden set and metrics). Numbers of experiments 1 to 3 come from their sections below; they were measured with the older metric definitions, so read them as a trend, not as an exact comparison.
 
 ## What each metric means
+
+> Experiments 1 to 3 report eight metrics (precision@5, recall@5, precision@10, recall@10, product_precision, product_recall, refusal_accuracy, blocked_answerable). From experiment 4 only **four** are kept, defined in [experiment 4](#the-four-metrics). The table below is the old set, kept to read the older experiments.
 
 Example: the user wanted products A and B and the system returned `[A, x, B, y, z]`.
 
@@ -28,6 +31,97 @@ Example: the user wanted products A and B and the system returned `[A, x, B, y, 
 | **refusal_accuracy** | Does it refuse exactly when it should? | 1 if (refused == question is unanswerable) | 0 or 1 |
 
 *Relevant* = ESCI label E (exact) from the golden set. The first four measure the **retriever**, the next two the **whole answer** (retriever + generator), the last one the **guardrails**. Precision is low by design: many questions have only 1 or 2 right products, so precision@5 cannot be higher than about 0.2 to 0.4.
+
+---
+
+## Experiment 4: four metrics, golden v2
+
+Run of **2026-11-10**, Opik experiment `hybrid-k10-Qwen/Qwen3-30B-A3B-Instruct-2507`. Same pipeline and same generator as [experiment 3](#experiment-3-qwen-as-generator) (hybrid search, k=10 products in the prompt, 5 recommendations, catalog of 2,000 products). What changed is the **measurement**: the golden set (v2, 117 items) and the metrics (eight reduced to four). The pipeline code was not touched, so the gain in `product_precision` is mostly a better ruler, not a better assistant.
+
+### How we got here
+
+![The four metrics, run after run](assets/eval-progress.svg)
+
+| Step | What we did | Effect |
+|---|---|---|
+| Experiment 1 to 2 | Non-reasoning classifier, usage capture, looser prompts, k=10 with 5 recommendations (issues #40 to #43) | false refusals 23 to 8 of 90, product_recall 0.44 to 0.62, refusal_accuracy 0.81 to 0.93 |
+| Experiment 2 to 3 | Qwen3-30B-A3B as generator | refusal_accuracy 0.95, run about twice as fast, product scores lower |
+| Evaluator speed-up (#54) | Items run in parallel (`--threads`), one search per item, configurable LLM timeout | a full run takes about 5 to 6 minutes instead of about 20 |
+| Golden v2 (#55) | 117 items, label fixes, no reviewer columns, 27 unanswerable or adversarial items | first run on the new set, with the old metrics: recall@10 0.773, product_precision 0.547, product_recall 0.662, refusal_accuracy 0.974 |
+| Diagnosis of low precision | Compared the precision@k scores with their maximum (below) | precision@k was low by construction, not because search failed |
+| **Experiment 4** | Four metrics, S products count as right | product_precision 0.547 to **0.710** with the same pipeline |
+
+### Why precision looked low
+
+The old `precision@k` always divided by k, but an answerable item has only **3.9 expected (E) products on average**. Even a perfect search could not pass about **0.72 at k=5** and **0.39 at k=10**; the measured 0.47 and 0.31 were already about two thirds and four fifths of that maximum. On top of that, ESCI "S" (substitute) products, which the golden set lists as `acceptable_product_ids`, were counted as wrong. A BM25-only check offline, with no paid calls, gave precision@5 0.42 with E only and 0.58 with E and S.
+
+So we dropped `precision@5`, `recall@5` and `precision@10`, dropped `blocked_answerable` (it showed up in the summary line anyway), and let S products count in `product_precision`.
+
+### The four metrics
+
+| Metric | Question | How |
+|---|---|---|
+| recall@10 | Does the search find the products? | E products in the 10 retrieved / all E products |
+| product_precision | Are the recommended products right? | recommended that are E **or S** / all recommended |
+| product_recall | Did the answer include the right products? | E products recommended / all E products |
+| refusal_accuracy | Does it refuse correctly? | 1 if (refused == question is unanswerable) |
+
+### Results
+
+| Metric | First v2 run (old metrics) | Experiment 4 |
+|---|---|---|
+| recall@10 | 0.773 | **0.787** |
+| product_precision | 0.547 (E only) | **0.710** (E and S) |
+| product_recall | 0.662 | **0.675** |
+| refusal_accuracy | 0.974 | **0.949** |
+
+Total time 5 min 12 s for 117 items (5 min 59 s in the first v2 run), with 4 items in parallel.
+
+- **`product_precision` 0.710.** Most of the +0.16 comes from counting S products. About 7 in 10 products the assistant recommends are an exact or acceptable match.
+- **`recall@10` 0.787 and `product_recall` 0.675.** The search puts about 4 in 5 of the expected products in the top 10, and the answer recommends about 2 in 3 of them. The small differences from the first v2 run (+0.014 and +0.013) are within what two runs of the same setup differ by (the rewriter and classifier are LLM calls), so do not read them as a gain.
+- **`refusal_accuracy` went down, 0.974 to 0.949.** That is 6 wrong decisions of 117 instead of 3. All 27 unanswerable and adversarial items were refused correctly; the 6 mistakes are answerable questions refused: exact 3, broad 2, typo 1. 5 were stopped by the input guardrail or the topic classifier before any search, 1 reached the generator and ended with no recommendation. The pipeline did not change, so this is either run-to-run noise in the classifier or a real weakness; see the next steps.
+
+### By question type
+
+![Experiment 4 by question type](assets/eval-exp4-by-type.svg)
+
+| Type | n | recall@10 | product_precision | product_recall | refusal_accuracy |
+|---|---|---|---|---|---|
+| exact | 33 | 0.762 | 0.706 | 0.643 | 0.909 |
+| attribute | 15 | 0.824 | 0.667 | 0.683 | 1.000 |
+| brand | 15 | 0.798 | 0.733 | 0.718 | 1.000 |
+| broad | 13 | 0.797 | 0.882 | 0.721 | 0.846 |
+| typo | 14 | 0.782 | 0.600 | 0.654 | 0.929 |
+| unanswerable | 21 | - | - | - | 1.000 |
+| adversarial | 6 | - | - | - | 1.000 |
+| **ALL** | 117 | 0.787 | 0.710 | 0.675 | 0.949 |
+
+- **`typo` has the lowest `product_precision` (0.60) and `exact` the lowest `product_recall` (0.64).** Typos still reach the generator with noisy candidates, and `exact` items usually have a few specific right products.
+- **`broad` has the best `product_precision` (0.88)** because many products are acceptable for a broad query, and now S products count. It also has the most false refusals (2 of 13).
+- **Groups are small.** One item moves a `typo` or `broad` number by 0.07 to 0.08.
+
+### Speed
+
+![Time of a full evaluation](assets/eval-exp4-time.svg)
+
+The big drop (19 min to about 5 min) comes from running 4 items in parallel and searching once per item (#54), not from the model. Experiment 2 to 3 (36 min to 20 min) was the smaller, non-reasoning generator.
+
+### What the "failed" counts in the Opik summary mean
+
+Opik prints `32 failed` for `recall@10` and `33 failed` for the product metrics. Nothing crashed: it counts the items where the metric does not apply. 27 are unanswerable or adversarial, 5 were stopped before any search (no `recall@10`), and 1 more was refused after the search (no product metrics).
+
+### Caveats
+
+- **Experiments 1 to 3 are not exactly comparable** with experiment 4: different golden set (120 vs 117 items, no follow-ups in v2) and different `product_precision` definition. The first v2 run (old metrics) is the closest reference for the pipeline itself.
+- **One run per setup.** There is no repeat run, so the size of the run-to-run noise is estimated, not measured.
+- The golden set was not edited to improve a score. Its S lists are incomplete (the catalog has about 10 S products per query, the CSV keeps at most about 5 to 7), so `product_precision` is probably still a little low.
+
+### Next steps
+
+1. Open the 6 false refusals in Opik (exact 3, broad 2, typo 1) and see where each one stops; 5 of them never reached search. If the classifier is the cause, loosen its prompt or run the evaluation twice to measure the noise.
+2. Rebuild `acceptable_product_ids` with all S products in the catalog (`scripts/build_golden.py`). It changes the golden set, so it needs its own PR with the reason.
+3. Add a reranker over the top 20 candidates to improve `product_recall` (the answer recommends 2 in 3 of the expected products although search finds 4 in 5).
+4. Handle typos before search (`typo` has the lowest `product_precision`).
 
 ---
 

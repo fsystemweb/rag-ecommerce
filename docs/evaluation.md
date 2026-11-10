@@ -18,20 +18,24 @@
 
 ## Metrics in plain words
 
-Example: 5 results, the user wanted products A and B, we returned `[A, x, B, y, z]`.
+Four metrics, one question each. *Expected* = ESCI label E, *acceptable* = label S.
 
-| Metric | Meaning | Example |
+| Metric | Question | How |
 |---|---|---|
-| precision@k | share of the top k that is relevant | 2/5 = 0.4 |
-| recall@k | share of the relevant products found in top k | 2/2 = 1.0 |
-| refusal accuracy | refuses exactly when the item is unanswerable | 0 or 1 |
+| recall@10 | Does the search find the products? | expected products in the top 10 retrieved / all expected |
+| product_precision | Are the recommended products right? | recommended that are expected or acceptable / all recommended |
+| product_recall | Did the answer include the right products? | expected products recommended / all expected |
+| refusal_accuracy | Does it refuse correctly? | 1 if it refuses exactly when the item is unanswerable, else 0 |
+
+Example: the user wanted A and B, the search returned `[A, x, B, y, z]` and the answer recommended A and S (an acceptable product): recall@10 = 2/2 = 1.0, product_precision = 2/2 = 1.0, product_recall = 1/2 = 0.5.
 
 ### How items are scored
 
-`python -m src.evaluation.evaluator --threads 4` runs 4 items in parallel. In full mode the retrieval metrics are computed on the chunks the pipeline itself retrieved, with its rewritten query (no second search). `@10` metrics are reported only when `k >= 10`.
+`python -m src.evaluation.evaluator --threads 4` runs 4 items in parallel. In full mode recall@10 is computed on the chunks the pipeline itself retrieved, with its rewritten query (no second search). `--retrieval-only` reports only recall@10.
 
-- An answerable item stopped before retrieval (input guardrail or topic classifier) is left out of recall and precision and counted in `blocked_answerable`.
-- An answerable item that is refused (`REFUSAL` or `NO_MATCH`) is left out of `precision@k`, `product_precision` and `product_recall`; it counts in `refusal_accuracy`.
+- Unanswerable items only get `refusal_accuracy`.
+- An answerable item stopped before retrieval (input guardrail or topic classifier) only gets `refusal_accuracy`.
+- An answerable item that is refused (`REFUSAL` or `NO_MATCH`) gets `refusal_accuracy` and `recall@10`, not the product metrics.
 
 ## Results
 

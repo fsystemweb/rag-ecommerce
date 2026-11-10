@@ -2,7 +2,7 @@
 
 Usage:
   python -m src.evaluation.evaluator --retrieval-only   # embeddings only (cheaper)
-  python -m src.evaluation.evaluator [--k 10] [--limit N] [--threads 4] [--generator MODEL] [--name NAME] [--floor recall@5=0.4]
+  python -m src.evaluation.evaluator [--k 10] [--limit N] [--threads 4] [--generator MODEL] [--name NAME] [--floor recall@10=0.6]
 
 Both modes make paid Nebius calls (without --retrieval-only, also classifier, rewrite and generation).
 With OPIK_URL_OVERRIDE set, it runs over the items of the Opik dataset, whatever it holds (sync it with
@@ -28,9 +28,6 @@ from src.evaluation.dataset import DATASET_NAME, load_golden
 from src.ingestion.index import get_store
 from src.observability import tracer as observability
 
-RETRIEVAL_KEYS = ["precision@5", "recall@5", "precision@10", "recall@10"]
-GENERATION_KEYS = ["product_precision", "product_recall", "refusal_accuracy", "blocked_answerable"]
-
 
 def retrieval_query(item, retrieval_only):
     """Follow-ups need a rewrite (an LLM call). In retrieval-only mode we join the turns instead."""
@@ -50,6 +47,7 @@ def check_item(item):
         ident = item.get("item_id") or item.get("id")
         raise ValueError(f"dataset item {ident} is missing {missing}")
     item.setdefault("history", [])
+    item.setdefault("acceptable_product_ids", [])
     return item
 
 
@@ -72,14 +70,12 @@ def run_item(item, retriever, make_pipeline, retrieval_only, output=None, k=None
     `make_pipeline(retriever)` builds a Pipeline around the given retriever (not used with retrieval_only).
     If `output` is a dict, it is filled with the generated answer and products so they can be logged.
     """
-    k = k or config.RETRIEVAL_K
-    ks = (5, 10) if k >= 10 else (5,)  # @10 is only meaningful when 10 products are retrieved
     expected = set(item["expected_product_ids"])
     if retrieval_only:
         if not item["answerable"]:
             return {}
-        chunks = retriever.retrieve(retrieval_query(item, retrieval_only), k=k)
-        return metrics.retrieval_scores([c.metadata["product_id"] for c in chunks], expected, ks)
+        chunks = retriever.retrieve(retrieval_query(item, retrieval_only), k=k or config.RETRIEVAL_K)
+        return {"recall@10": metrics.recall_at_k([c.metadata["product_id"] for c in chunks], expected)}
 
     recorder = RecordingRetriever(retriever)
     history = [Turn(**t) for t in item["history"]]
@@ -89,22 +85,17 @@ def run_item(item, retriever, make_pipeline, retrieval_only, output=None, k=None
         output["products"] = [f"{p.product_id}: {p.title}" for p in resp.products]
     refused = resp.answer in (guardrails.REFUSAL, guardrails.NO_MATCH)
     scores = {"refusal_accuracy": metrics.refusal_accuracy(refused, item["answerable"])}
-    if not item["answerable"]:
-        return scores
+    if not item["answerable"] or not recorder.calls:
+        return scores  # unanswerable, or stopped by a guardrail before any search
 
-    blocked = not recorder.calls  # the guardrail or the classifier stopped it before any search
-    scores["blocked_answerable"] = float(blocked)
-    if blocked:
-        return scores  # no retrieval happened: out of the recall and precision averages
     # score the chunks the pipeline really searched (with its rewritten query)
     ids = [c.metadata["product_id"] for c in recorder.calls[-1][1]]
-    scores.update(metrics.retrieval_scores(ids, expected, ks))
+    scores["recall@10"] = metrics.recall_at_k(ids, expected)
     if refused:
-        for key in [key for key in scores if key.startswith("precision@")]:
-            del scores[key]
-        return scores  # a refused answer is left out of the precision metrics (recall of what was retrieved is kept)
+        return scores  # no products recommended: left out of the product metrics
     answer_ids = [p.product_id for p in resp.products]
-    scores["product_precision"] = metrics.product_precision(answer_ids, expected)
+    good = expected | set(item["acceptable_product_ids"])
+    scores["product_precision"] = metrics.product_precision(answer_ids, good)
     scores["product_recall"] = metrics.product_recall(answer_ids, expected)
     return scores
 
@@ -120,7 +111,7 @@ def aggregate(rows):
 
 
 def check_floors(table, floors):
-    """floors: ['recall@5=0.4']. Returns the list of failed checks."""
+    """floors: ['recall@10=0.6']. Returns the list of failed checks."""
     failed = []
     for spec in floors:
         name, value = spec.split("=")
@@ -146,7 +137,7 @@ def main(argv=None):
     ap.add_argument("--generator", default=config.GENERATOR_LLM)
     ap.add_argument("--name", help="experiment name (default: built from the settings)")
     ap.add_argument("--retrieval-only", action="store_true")
-    ap.add_argument("--floor", action="append", default=[], help="e.g. recall@5=0.4")
+    ap.add_argument("--floor", action="append", default=[], help="e.g. recall@10=0.6")
     args = ap.parse_args(argv)
     config.RETRIEVAL_K = args.k
 
@@ -156,7 +147,7 @@ def main(argv=None):
     def make_pipeline(rec):
         return Pipeline(rec, generator, classifier)
 
-    keys = RETRIEVAL_KEYS if args.retrieval_only else RETRIEVAL_KEYS + GENERATION_KEYS
+    keys = ["recall@10"] if args.retrieval_only else metrics.NAMES
     name = args.name or f"hybrid-k{args.k}-{'retrieval' if args.retrieval_only else args.generator}"
 
     rows = []
@@ -195,10 +186,6 @@ def main(argv=None):
     table = aggregate(rows)
     print(f"\nexperiment: {name}  items: {len(rows)}")
     print_table(table, keys)
-    if not args.retrieval_only:
-        blocked = sum(r[1].get("blocked_answerable", 0) for r in rows)
-        answerable = sum("blocked_answerable" in r[1] for r in rows)
-        print(f"blocked_answerable: {blocked:.0f} of {answerable} answerable items (excluded from recall and precision)")
     results = config.ROOT / "src" / "evaluation" / "results"
     results.mkdir(exist_ok=True)
     # model names contain "/" (e.g. deepseek-ai/DeepSeek-V4), which is not valid inside a file name
