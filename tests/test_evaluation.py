@@ -48,7 +48,7 @@ class FakeRetriever:
 def test_run_item_retrieval_only():
     item = {"answerable": True, "expected_product_ids": ["P1"], "acceptable_product_ids": [], "history": [], "input": "x"}
     scores = run.run_item(item, FakeRetriever(), None, retrieval_only=True)
-    assert scores["precision@5"] == 1 / 5 and scores["recall@5"] == 1.0
+    assert scores == {"recall@10": 1.0}
 
 
 def test_unanswerable_items_have_no_retrieval_scores():
@@ -57,10 +57,10 @@ def test_unanswerable_items_have_no_retrieval_scores():
 
 
 def test_aggregate_and_floor():
-    table = run.aggregate([("exact", {"recall@5": 1.0}), ("brand", {"recall@5": 0.0})])
-    assert table["ALL"]["recall@5"] == 0.5 and table["exact"]["recall@5"] == 1.0
-    assert run.check_floors(table, ["recall@5=0.4"]) == []
-    assert run.check_floors(table, ["recall@5=0.9"])
+    table = run.aggregate([("exact", {"recall@10": 1.0}), ("brand", {"recall@10": 0.0})])
+    assert table["ALL"]["recall@10"] == 0.5 and table["exact"]["recall@10"] == 1.0
+    assert run.check_floors(table, ["recall@10=0.4"]) == []
+    assert run.check_floors(table, ["recall@10=0.9"])
 
 
 def test_golden_csv_path_exists():
@@ -132,8 +132,14 @@ def reply(*texts):
     return GenericFakeChatModel(messages=iter([AIMessage(content=t) for t in texts]))
 
 
-def full_item(answerable=True, expected=("P1",)):
-    return {"input": "auriculares sony", "answerable": answerable, "expected_product_ids": list(expected), "history": []}
+def full_item(answerable=True, expected=("P1",), acceptable=()):
+    return {
+        "input": "auriculares sony",
+        "answerable": answerable,
+        "expected_product_ids": list(expected),
+        "acceptable_product_ids": list(acceptable),
+        "history": [],
+    }
 
 
 def test_full_mode_searches_once_and_scores_the_pipeline_chunks(tmp_path, monkeypatch, catalog_df):
@@ -156,19 +162,19 @@ def test_full_mode_searches_once_and_scores_the_pipeline_chunks(tmp_path, monkey
     out = {}
     scores = run.run_item(full_item(), retriever, make_pipeline, False, out, k=10)
     assert len(emb.queries) == 1  # only the pipeline's own search
-    assert scores["recall@10"] == 1.0 and "precision@10" in scores
-    assert scores["product_precision"] == 1.0 and scores["blocked_answerable"] == 0.0
+    assert scores == {"refusal_accuracy": 1.0, "recall@10": 1.0, "product_precision": 1.0, "product_recall": 1.0}
     assert out["answer"].startswith("Te recomiendo")
 
 
-def test_k_below_10_reports_no_at_10_metrics():
+def test_acceptable_products_count_in_product_precision_only():
     from src.agent.rag_agent import Pipeline
 
     def make_pipeline(rec):
         return Pipeline(rec, reply("x", "[P1]"), reply("PRODUCT_SEARCH"))
 
-    scores = run.run_item(full_item(), FakeRetriever(), make_pipeline, False, k=5)
-    assert "recall@5" in scores and "recall@10" not in scores and "precision@10" not in scores
+    item = full_item(expected=("P2",), acceptable=("P1",))
+    scores = run.run_item(item, FakeRetriever(), make_pipeline, False, k=10)
+    assert scores["product_precision"] == 1.0 and scores["product_recall"] == 0.0
 
 
 def test_blocked_answerable_item_is_left_out_of_retrieval_metrics():
@@ -178,7 +184,7 @@ def test_blocked_answerable_item_is_left_out_of_retrieval_metrics():
         return Pipeline(rec, reply("x"), reply("OFF_TOPIC"))
 
     scores = run.run_item(full_item(), FakeRetriever(), make_pipeline, False, k=10)
-    assert scores == {"refusal_accuracy": 0.0, "blocked_answerable": 1.0}
+    assert scores == {"refusal_accuracy": 0.0}
 
 
 def test_refused_answerable_item_counts_in_refusal_accuracy_not_precision():
@@ -189,7 +195,7 @@ def test_refused_answerable_item_counts_in_refusal_accuracy_not_precision():
 
     scores = run.run_item(full_item(), FakeRetriever(), make_pipeline, False, k=10)
     assert scores["refusal_accuracy"] == 0.0
-    assert not {"precision@5", "precision@10", "product_precision", "product_recall"} & scores.keys()
+    assert scores == {"refusal_accuracy": 0.0, "recall@10": 1.0}
 
 
 def test_recording_retriever_keeps_the_chunks_and_query():

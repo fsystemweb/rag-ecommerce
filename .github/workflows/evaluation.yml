@@ -14,6 +14,6 @@ jobs:
           python -m scripts.download_data
           python -m scripts.sample_catalog --size 2000
           python -m src.ingestion --yes
-          python -m src.evaluation.evaluator --retrieval-only --floor recall@5=0.4
+          python -m src.evaluation.evaluator --retrieval-only --floor recall@10=0.6
         env:
           NEBIUS_API_KEY: ${{ secrets.NEBIUS_API_KEY }}

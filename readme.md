@@ -86,10 +86,10 @@ ruff check . && ruff format --check .             # CI runs the same
 Runs the golden dataset (`src/evaluation/datasets/golden_es_v2.csv`, 117 items) through the pipeline and prints the metrics. **Paid:** each item calls Nebius (embeddings, and also classify, rewrite and generate without `--retrieval-only`).
 
 ```bash
-python -m src.evaluation.evaluator                      # full pipeline
+python -m src.evaluation.evaluator --threads 4          # full pipeline, 4 items in parallel
 python -m src.evaluation.evaluator --retrieval-only     # embeddings only (cheaper)
 python -m src.evaluation.evaluator --limit 10           # first 10 items, for a quick check
-python -m src.evaluation.evaluator --floor recall@5=0.4 # exit code 1 if the floor is not met
+python -m src.evaluation.evaluator --floor recall@10=0.6 # exit code 1 if the floor is not met
 ```
 
 Other flags: `--k`, `--generator MODEL`, `--name NAME`. With `OPIK_URL_OVERRIDE` set, it runs over the Opik dataset `rag-ecommerce-golden-v2` (sync it first with `python -m src.evaluation.dataset --upload`) and logs the run as an Opik experiment. Without Opik it uses the local CSV. Details: [Evaluation](docs/evaluation.md).
