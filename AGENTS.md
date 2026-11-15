@@ -9,6 +9,8 @@
 - API: `python main.py` (port 8000)
 - Chat page: `python -m http.server 5500`, open `http://localhost:5500/public/`
 - Tests (offline, free): `pytest` and `python -m src.evaluation.test_metrics`
+- Evaluation (paid, golden set): `python -m src.evaluation.evaluator` (`--retrieval-only`, `--limit N`, `--threads N`, `--floor recall@10=0.6`); with Opik, upload the set first: `python -m src.evaluation.dataset --upload`
+- Local Opik (Docker, optional): `scripts/opik.sh up|down|status|logs|reset`
 - Lint: `ruff check . && ruff format --check .` (CI runs the same plus `pytest`)
 - Docs: `npx docsify-cli serve docs`
 
@@ -18,6 +20,6 @@
 - All settings are read in `src/core/config.py` only.
 
 ## Boundaries
-- Always: keep tests offline (fake LLM and fake embeddings).
+- Always: keep tests offline with the fakes in `tests/conftest.py` (`GenericFakeChatModel`, `DeterministicFakeEmbedding`).
 - Ask first: adding a dependency, changing the `/ask` request or response shape, changing the golden dataset.
 - Never: commit secrets or the dataset, read `.env`, or run `ingestion`/`evaluator` without being asked (they cost money).
