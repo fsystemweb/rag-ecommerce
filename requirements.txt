@@ -5,7 +5,7 @@ python-dotenv==1.2.4
 pandas==3.1.1
 pyarrow==26.0.1
 requests==2.34.2
-langchain-openai==1.7.4  # OpenAI-compatible client, used with the Nebius base URL
+langchain-openai==1.8.2  # OpenAI-compatible client, used with the Nebius base URL
 langchain-chroma==1.1.0
 chromadb==1.5.9
 rank-bm25==0.2.2
